@@ -1,0 +1,27 @@
+package uz.coder.davomatbackend.db.model;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@ToString
+@Table(name = "student")
+@Entity
+public class StudentDbModel {
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @Column(name = "id", nullable = false)
+    private long id;
+    @Column(name = "phone_number", nullable = false, unique = true)
+    private String phoneNumber;
+    @Column(name = "userId", nullable = false)
+    private long userId;
+
+    public StudentDbModel(String phoneNumber, long userId) {
+        this.phoneNumber = phoneNumber;
+        this.userId = userId;
+    }
+}
