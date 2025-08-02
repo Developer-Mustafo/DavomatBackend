@@ -17,7 +17,7 @@ public class CourseDbModel {
     private long id;
     @Column(name = "title", nullable = false)
     private String title;
-    @Column(name = "description", nullable = false)
+    @Column(name = "description")
     private String description;
     @Column(name = "userId", nullable = false)
     private long userId;

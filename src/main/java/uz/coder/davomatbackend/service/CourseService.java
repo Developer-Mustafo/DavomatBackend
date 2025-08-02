@@ -8,6 +8,7 @@ import uz.coder.davomatbackend.model.Course;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -41,7 +42,6 @@ public class CourseService {
     }
     public List<Course> findAll(long userId) {
         List<CourseDbModel> allByUserId = database.findAllByUserId(userId);
-        Stream<Course> courseStream = allByUserId.stream().map(item -> new Course(item.getId(), item.getTitle(), item.getDescription(), item.getUserId()));
-        return courseStream.toList();
+        return allByUserId.stream().map(item -> new Course(item.getId(), item.getTitle(), item.getDescription(), item.getUserId())).collect(Collectors.toList());
     }
 }

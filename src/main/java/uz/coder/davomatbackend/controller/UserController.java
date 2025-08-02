@@ -8,6 +8,8 @@ import uz.coder.davomatbackend.model.Response;
 import uz.coder.davomatbackend.model.User;
 import uz.coder.davomatbackend.service.UserService;
 
+import static uz.coder.davomatbackend.todo.Strings.ROLE_STUDENT;
+
 @RequestMapping("/api/user")
 @RestController
 public class UserController {
@@ -57,7 +59,7 @@ public class UserController {
         }
     }
     @GetMapping("/phone/{phoneNumber}")
-    public ResponseEntity<Response<User>> findByPhoner(@PathVariable("phoneNumber") String phoneNumber) {
+    public ResponseEntity<Response<User>> findByPhone(@PathVariable("phoneNumber") String phoneNumber) {
         try {
             User user = service.findByPhoneNumber(phoneNumber);
             return  ResponseEntity.ok()
@@ -73,10 +75,23 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<Response<User>> register(@RequestBody User user) {
         try {
-            User save = service.save(user);
-            return  ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(new Response<>(200, save));
+            User userByNumberOfPhone = service.findByPhoneNumber(user.getPhoneNumber());
+            if (userByNumberOfPhone != null) {
+                userByNumberOfPhone.setLastName(user.getLastName());
+                userByNumberOfPhone.setFirstName(user.getFirstName());
+                userByNumberOfPhone.setEmail(user.getEmail());
+                userByNumberOfPhone.setRole(ROLE_STUDENT);
+                userByNumberOfPhone.setPassword(user.getPassword());
+                User edit = service.edit(userByNumberOfPhone);
+                return ResponseEntity.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(new Response<>(200, edit));
+            }else {
+                User save = service.save(user);
+                return  ResponseEntity.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(new Response<>(200, save));
+            }
         }catch (Exception e){
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)

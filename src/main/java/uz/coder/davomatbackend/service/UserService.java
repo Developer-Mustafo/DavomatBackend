@@ -53,9 +53,4 @@ public class UserService {
             return null;
         }
     }
-    /***
-    * ROLES of the users***/
-    private static final String ROLE_STUDENT = "ROLE_STUDENT";
-    private static final String ROLE_TEACHER = "ROLE_TEACHER";
-    private static final String ROLE_ADMIN = "ROLE_ADMIN";
 }

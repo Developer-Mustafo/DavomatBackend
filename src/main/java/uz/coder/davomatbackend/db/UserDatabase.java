@@ -20,4 +20,10 @@ public interface UserDatabase extends JpaRepository<UserDbModel, Long> {
 
     @Query("select u from UserDbModel u where u.phoneNumber=:phoneNumber")
     UserDbModel findByPhoneNumber(@Param("phoneNumber") String phoneNumber);
+
+    @Query("select u.firstName from UserDbModel u where u.id=:userId")
+    String findFirstNameById(@Param("userId") long userId);
+
+    @Query("select u.lastName from UserDbModel u where u.id=:userId")
+    String findLastNameById(@Param("userId")  long userId);
 }

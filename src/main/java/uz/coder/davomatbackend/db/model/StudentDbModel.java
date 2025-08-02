@@ -19,9 +19,12 @@ public class StudentDbModel {
     private String phoneNumber;
     @Column(name = "userId", nullable = false)
     private long userId;
+    @Column(name = "groupId",  nullable = false)
+    private long groupId;
 
-    public StudentDbModel(String phoneNumber, long userId) {
+    public StudentDbModel(String phoneNumber, long userId,  long groupId) {
         this.phoneNumber = phoneNumber;
         this.userId = userId;
+        this.groupId = groupId;
     }
 }

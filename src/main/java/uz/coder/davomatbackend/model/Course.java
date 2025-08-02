@@ -18,4 +18,9 @@ public class Course {
         this.description = description;
         this.userId = userId;
     }
+
+    public Course(String title, long userId) {
+        this.title = title;
+        this.userId = userId;
+    }
 }
