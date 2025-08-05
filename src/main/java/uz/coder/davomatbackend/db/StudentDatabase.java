@@ -21,6 +21,15 @@ public interface StudentDatabase extends JpaRepository<StudentDbModel, Long> {
     @Query("select s from StudentDbModel s where s.groupId=:groupId")
     List<StudentDbModel> findAllByGroupId(@Param("groupId") long groupId);
 
-    @Query("select s from StudentDbModel s where s.userId=:userId")
-    List<StudentDbModel> findUsersByUserId(@Param("userId") long userId);
+    @Query("""
+    select s from StudentDbModel s
+    where s.groupId in (
+        select g.id from GroupDbModel g
+        where g.courseId in (
+            select c.id from CourseDbModel c where c.userId = :userId
+        )
+    )
+""")
+    List<StudentDbModel> findAllStudentsByOwnerUserId(@Param("userId") long userId);
+
 }

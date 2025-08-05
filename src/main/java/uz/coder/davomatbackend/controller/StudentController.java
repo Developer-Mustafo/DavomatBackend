@@ -1,16 +1,12 @@
 package uz.coder.davomatbackend.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import uz.coder.davomatbackend.db.model.CourseDbModel;
-import uz.coder.davomatbackend.db.model.GroupDbModel;
 import uz.coder.davomatbackend.model.Student;
 import uz.coder.davomatbackend.model.Response;
 import uz.coder.davomatbackend.service.StudentService;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
@@ -87,7 +83,7 @@ public class StudentController {
     }
 
     @PostMapping(value = "/upload-excel/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Response<String>> uploadExcel(@RequestParam("file") MultipartFile file, @PathVariable("userId") long userId) {
+    public ResponseEntity<Response<String>> uploadExcel(@RequestParam MultipartFile file, @PathVariable("userId") long userId) {
         try {
             // Faqat .xls fayllar uchun ruxsat beriladi
             if (!Objects.requireNonNull(file.getOriginalFilename()).endsWith(".xlsx")) {
