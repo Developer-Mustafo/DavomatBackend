@@ -16,5 +16,5 @@ public class Strings {
     public static final String PHONE = "Telefon raqami";
     public static final String GROUP = "Guruhi";
     public static final String COURSE = "Kasbi";
-    public static final String ATTENDANCE = "Kelgan (+)  yoki kelmaganligi (-) ";
+    public static final String NOT_FOUND = "Topilmadi";
 }

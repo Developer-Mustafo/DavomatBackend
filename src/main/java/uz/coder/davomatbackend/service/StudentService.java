@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static uz.coder.davomatbackend.todo.Strings.*;
+
 @Slf4j
 @Service
 public class StudentService {
@@ -108,7 +110,7 @@ public class StudentService {
                     String[] nameParts = fullName.trim().split(" ", 2);
                     String firstName = nameParts.length > 0 ? nameParts[0] : "";
                     String lastName = nameParts.length > 1 ? nameParts[1] : "";
-                    user = new UserDbModel(firstName, lastName, phoneNumber, "STUDENT");
+                    user = new UserDbModel(firstName, lastName, phoneNumber, ROLE_STUDENT);
                     user = userDatabase.save(user);
                 }
 
@@ -152,11 +154,11 @@ public class StudentService {
             Sheet sheet = workbook.createSheet("Students");
 
             Row header = sheet.createRow(0);
-            header.createCell(0).setCellValue("№");
-            header.createCell(1).setCellValue("O‘quvchining F. I. Sh");
-            header.createCell(2).setCellValue("Telefon raqami");
-            header.createCell(3).setCellValue("Guruhi");
-            header.createCell(4).setCellValue("Kasbi");
+            header.createCell(0).setCellValue(NUMBER);
+            header.createCell(1).setCellValue(FULL_NAME);
+            header.createCell(2).setCellValue(PHONE);
+            header.createCell(3).setCellValue(GROUP);
+            header.createCell(4).setCellValue(COURSE);
 
             int rowNum = 1;
             for (int i = 0; i < students.size(); i++) {

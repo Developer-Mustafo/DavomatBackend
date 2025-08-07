@@ -57,7 +57,7 @@ public class StudentController {
                     .body(new Response<>(500, e.getMessage()));
         }
     }
-    @GetMapping("/findById/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Response<Student>> findById(@PathVariable("id") long id) {
         try {
             return ResponseEntity.ok()
@@ -69,12 +69,12 @@ public class StudentController {
                     .body(new Response<>(500, ex.getMessage()));
         }
     }
-    @GetMapping("/findByCourseId/{courseId}")
-    public ResponseEntity<Response<List<Student>>> findByCourseId(@PathVariable("courseId") long courseId) {
+    @GetMapping("/findByGroupId/{groupId}")
+    public ResponseEntity<Response<List<Student>>> findByGroupId(@PathVariable("groupId") long groupId) {
         try {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(new Response<>(200, service.findAllStudentByGroupId(courseId)));
+                    .body(new Response<>(200, service.findAllStudentByGroupId(groupId)));
         }catch (Exception ex){
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
@@ -114,7 +114,4 @@ public class StudentController {
 
         return new ResponseEntity<>(fileBytes, headers, HttpStatus.OK);
     }
-
-
-
 }
