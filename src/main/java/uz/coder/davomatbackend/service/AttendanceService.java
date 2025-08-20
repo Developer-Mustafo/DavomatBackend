@@ -71,7 +71,7 @@ public class AttendanceService {
                 String phone = getCellStringValue(row.getCell(2));
                 StudentDbModel student = studentDatabase.findAll().stream()
                         .filter(s -> s.getPhoneNumber().equals(phone))
-                        .findFirst().orElse(null);
+                        .findFirst().orElseThrow(()->new IllegalArgumentException(THERE_IS_NO_SUCH_AN_ATTENDANCE));
 
                 if (student == null) continue;
 
@@ -96,9 +96,8 @@ public class AttendanceService {
         }
     }
 
-    public byte[] exportToExcelByMonth(Long userId, int year, int month) throws IOException {
+    public byte[] exportToExcelByMonth(long userId, int year, int month) throws IOException {
         List<StudentDbModel> students = studentDatabase.findAllStudentsByOwnerUserId(userId);
-
         Map<Long, String> studentNames = new HashMap<>();
         for (StudentDbModel student : students) {
             userDatabase.findById(student.getUserId()).ifPresent(user -> studentNames.put(student.getId(), user.getFirstName() + " " + user.getLastName()));
@@ -133,7 +132,7 @@ public class AttendanceService {
                 row.createCell(1).setCellValue(studentNames.getOrDefault(student.getId(), ""));
                 row.createCell(2).setCellValue(student.getPhoneNumber());
 
-                GroupDbModel group = groupDatabase.findById(student.getGroupId()).orElse(null);
+                GroupDbModel group = groupDatabase.findById(student.getGroupId()).orElseThrow(()->new IllegalArgumentException(THERE_IS_NO_SUCH_AN_ATTENDANCE));
                 row.createCell(3).setCellValue(group != null ? group.getCourseId() + "" : "");
                 row.createCell(4).setCellValue(group != null ? group.getTitle() : "");
 
@@ -154,14 +153,14 @@ public class AttendanceService {
         }
     }
 
-    public List<Attendance> getAllByStudentId(Long studentId) {
+    public List<Attendance> getAllByStudentId(long studentId) {
         return attendanceDatabase.findAllByStudentId(studentId).stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
 
     public Attendance update(Attendance updated) {
-        AttendanceDbModel model = attendanceDatabase.findById(updated.getId()).orElse(null);
+        AttendanceDbModel model = attendanceDatabase.findById(updated.getId()).orElseThrow(()->new IllegalArgumentException(THERE_IS_NO_SUCH_AN_ATTENDANCE));
         if (model == null) return null;
 
         model.setDate(updated.getDate());
@@ -172,7 +171,7 @@ public class AttendanceService {
         return mapToDto(saved);
     }
 
-    public boolean delete(Long id) {
+    public boolean delete(long id) {
         if (!attendanceDatabase.existsById(id)) return false;
         attendanceDatabase.deleteById(id);
         return true;
@@ -193,8 +192,8 @@ public class AttendanceService {
         return new Attendance(dbModel.getId(), dbModel.getStudentId(), dbModel.getDate(), dbModel.getStatus());
     }
 
-    public Attendance findById(Long id) {
-        AttendanceDbModel attendanceDbModel = attendanceDatabase.findById(id).orElse(null);
+    public Attendance findById(long id) {
+        AttendanceDbModel attendanceDbModel = attendanceDatabase.findById(id).orElseThrow(()->new IllegalArgumentException(THERE_IS_NO_SUCH_AN_ATTENDANCE));
         return mapToDto(attendanceDbModel);
     }
 }

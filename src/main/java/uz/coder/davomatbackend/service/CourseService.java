@@ -5,11 +5,9 @@ import org.springframework.stereotype.Service;
 import uz.coder.davomatbackend.db.CourseDatabase;
 import uz.coder.davomatbackend.db.model.CourseDbModel;
 import uz.coder.davomatbackend.model.Course;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import static uz.coder.davomatbackend.todo.Strings.*;
 
 @Service
 public class CourseService {
@@ -25,20 +23,22 @@ public class CourseService {
     }
     public Course edit(Course course) {
         database.update(course.getId(), course.getTitle(), course.getDescription(), course.getUserId());
-        CourseDbModel save = database.findById(course.getId()).orElse(null);
+        CourseDbModel save = database.findById(course.getId()).orElseThrow(()->new IllegalArgumentException(THERE_IS_NO_SUCH_A_COURSE));
         assert save != null;
         return new Course(save.getId(), save.getTitle(), save.getDescription(), save.getUserId());
     }
     public Course findById(long id) {
-        CourseDbModel course = database.findById(id).orElse(null);
+        CourseDbModel course = database.findById(id).orElseThrow(()->new IllegalArgumentException(THERE_IS_NO_SUCH_A_COURSE));
         assert course != null;
         return new Course(course.getId(), course.getTitle(), course.getDescription(), course.getUserId());
     }
     public int deleteById(long id) {
-        CourseDbModel course = database.findById(id).orElse(null);
-        assert course != null;
-        database.delete(course);
-        return 1;
+        if (database.existsById(id)){
+            database.deleteById(id);
+            return 1;
+        }else {
+            return 0;
+        }
     }
     public List<Course> findAll(long userId) {
         List<CourseDbModel> allByUserId = database.findAllByUserId(userId);

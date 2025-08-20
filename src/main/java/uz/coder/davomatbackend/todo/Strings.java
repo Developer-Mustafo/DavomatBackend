@@ -9,7 +9,13 @@ public class Strings {
     /***
      * Texts
      ***/
-    public static final String YOU_ARE_A_STUDENT = "Siz o'quvchisiz, siz kurs qo'sha ololmaysiz";
+    public static final String YOU_ARE_A_STUDENT = "Siz oddiy foydalanuvchisiz, siz kurs qo'sha ololmaysiz";
+    public static final String YOU_ARE_NOT_A_STUDENT = "Siz oddiy foydalanuvchi emassiz";
+    public static final String THERE_IS_NO_SUCH_A_PERSON = "Bunday odam mavjud emas";
+    public static final String THERE_IS_NO_SUCH_A_COURSE = "Bunday kurs mavjud emas";
+    public static final String THERE_IS_NO_SUCH_A_GROUP = "Bunday guruh mavjud emas";
+    public static final String THERE_IS_NO_SUCH_AN_ATTENDANCE = "Bunday davomat mavjud emas";
+    public static final String YOUR_BALANCE_IS_EMPTY = "Sizni balansingiz 0ga teng";
     //Student
     public static final String NUMBER = "№";
     public static final String FULL_NAME = "O‘quvchining F. I. Sh";

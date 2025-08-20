@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import uz.coder.davomatbackend.model.Balance;
 import uz.coder.davomatbackend.model.Response;
 import uz.coder.davomatbackend.model.User;
 import uz.coder.davomatbackend.service.UserService;
@@ -106,6 +107,20 @@ public class UserController {
             return  ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(200, edit));
+        }catch (Exception e){
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new Response<>(500, e.getMessage()));
+        }
+    }
+
+    @PutMapping("/pay")
+    public ResponseEntity<Response<User>> pay(@RequestBody Balance balance) {
+        try {
+            User user = service.updateBalanceUser(balance);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new Response<>(200, user));
         }catch (Exception e){
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)

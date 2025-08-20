@@ -14,10 +14,14 @@ import uz.coder.davomatbackend.db.model.CourseDbModel;
 import uz.coder.davomatbackend.db.model.GroupDbModel;
 import uz.coder.davomatbackend.db.model.StudentDbModel;
 import uz.coder.davomatbackend.db.model.UserDbModel;
+import uz.coder.davomatbackend.model.Balance;
 import uz.coder.davomatbackend.model.Student;
+import uz.coder.davomatbackend.model.StudentCourseGroup;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,7 +54,7 @@ public class StudentService {
 
     public Student edit(Student student) {
         database.update(student.getId(), student.getPhoneNumber(), student.getUserId(), student.getGroupId());
-        StudentDbModel save = database.findById(student.getId()).orElse(null);
+        StudentDbModel save = database.findById(student.getId()).orElseThrow(()->new IllegalArgumentException(THERE_IS_NO_SUCH_A_PERSON));
         assert save != null;
         String firstNameById = userDatabase.findFirstNameById(student.getUserId());
         String lastNameById = userDatabase.findLastNameById(student.getUserId());
@@ -59,7 +63,7 @@ public class StudentService {
     }
 
     public Student findById(long id) {
-        StudentDbModel student = database.findById(id).orElse(null);
+        StudentDbModel student = database.findById(id).orElseThrow(()->new IllegalArgumentException(THERE_IS_NO_SUCH_A_PERSON));
         assert student != null;
         String firstNameById = userDatabase.findFirstNameById(student.getUserId());
         String lastNameById = userDatabase.findLastNameById(student.getUserId());
@@ -68,10 +72,12 @@ public class StudentService {
     }
 
     public int deleteById(long id) {
-        StudentDbModel student = database.findById(id).orElse(null);
-        assert student != null;
-        database.delete(student);
-        return 1;
+        if (database.existsById(id)){
+            database.deleteById(id);
+            return 1;
+        }else {
+            return 0;
+        }
     }
 
     public List<Student> findAllStudentByGroupId(long groupId) {
@@ -110,7 +116,9 @@ public class StudentService {
                     String[] nameParts = fullName.trim().split(" ", 2);
                     String firstName = nameParts.length > 0 ? nameParts[0] : "";
                     String lastName = nameParts.length > 1 ? nameParts[1] : "";
-                    user = new UserDbModel(firstName, lastName, phoneNumber, ROLE_STUDENT);
+                    LocalDate now = LocalDate.now();
+                    LocalDate balance = now.plusWeeks(1);
+                    user = new UserDbModel(firstName, lastName, phoneNumber, ROLE_STUDENT, balance);
                     user = userDatabase.save(user);
                 }
 
@@ -168,7 +176,7 @@ public class StudentService {
                 row.createCell(1).setCellValue(s.getFullName());
                 row.createCell(2).setCellValue(s.getPhoneNumber());
 
-                GroupDbModel group = groupDatabase.findById(s.getGroupId()).orElse(null);
+                GroupDbModel group = groupDatabase.findById(s.getGroupId()).orElseThrow(()->new IllegalArgumentException(THERE_IS_NO_SUCH_A_PERSON));
                 String groupName = group != null ? group.getTitle() : "Noma'lum";
 
                 CourseDbModel course = (group != null) ? courseDatabase.findById(group.getCourseId()).orElse(null) : null;
@@ -217,7 +225,7 @@ public class StudentService {
         }
     }
 
-    public List<Student> getStudentsByUserId(Long userId) {
+    public List<Student> getStudentsByUserId(long userId) {
         List<StudentDbModel> students = database.findAllStudentsByOwnerUserId(userId);
         return students.stream().map(item -> {
             String firstNameById = userDatabase.findFirstNameById(item.getUserId());
@@ -225,5 +233,23 @@ public class StudentService {
             String fullName = firstNameById + " " + lastNameById;
             return new Student(item.getId(), fullName, item.getPhoneNumber(), item.getUserId(), item.getGroupId());
         }).collect(Collectors.toList());
+    }
+    public List<StudentCourseGroup> getCourseAndGroupByUserId(long userId) {
+        UserDbModel model = userDatabase.findById(userId).orElseThrow(() -> new IllegalArgumentException(THERE_IS_NO_SUCH_A_PERSON));
+        if (model.getRole().equals(ROLE_STUDENT)) {
+            Balance balance = userDatabase.getUserBalanceById(userId);
+            LocalDate now = LocalDate.now();
+            if (balance.getDate().isAfter(now)) {
+                System.out.println("+");
+                return database.findCoursesAndGroupsForStudent(userId);
+            } else if (balance.getDate().isEqual(now)) {
+                System.out.println("+");
+                return database.findCoursesAndGroupsForStudent(userId);
+            } else {
+                throw new IllegalArgumentException(YOUR_BALANCE_IS_EMPTY);
+            }
+        }else {
+            throw new IllegalArgumentException(YOU_ARE_NOT_A_STUDENT);
+        }
     }
 }

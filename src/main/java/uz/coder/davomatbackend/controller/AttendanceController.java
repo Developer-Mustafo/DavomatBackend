@@ -13,8 +13,6 @@ import uz.coder.davomatbackend.service.AttendanceService;
 import java.io.IOException;
 import java.util.List;
 
-import static uz.coder.davomatbackend.todo.Strings.NOT_FOUND;
-
 @RestController
 @RequestMapping("/api/attendance")
 @RequiredArgsConstructor
@@ -26,7 +24,7 @@ public class AttendanceController {
     public ResponseEntity<Response<Attendance>> save(@RequestBody Attendance attendance) {
         Attendance saved = attendanceService.save(attendance);
         if (saved == null)
-            return ResponseEntity.badRequest().body(new Response<>(400, "Already exists or invalid"));
+            return ResponseEntity.badRequest().body(new Response<>(500, "Already exists or invalid"));
         return ResponseEntity.ok(new Response<>(200, saved));
     }
 
@@ -39,28 +37,23 @@ public class AttendanceController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Response<String>> delete(@PathVariable Long id) {
+    public ResponseEntity<Response<String>> delete(@PathVariable long id) {
         boolean deleted = attendanceService.delete(id);
         if (deleted)
             return ResponseEntity.ok(new Response<>(200, "Deleted successfully"));
         return ResponseEntity.status(404).body(new Response<>(404, "Not found"));
     }
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Response<Attendance>> findById(@PathVariable Long id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<Response<Attendance>> findById(@PathVariable long id) {
         try {
             Attendance attendance = attendanceService.findById(id);
-            if (attendance == null)
-                return ResponseEntity.ok()
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(new  Response<>(400, NOT_FOUND));
-            else
-                return ResponseEntity.ok()
+            return ResponseEntity.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(new Response<>(200, attendance));
         } catch (Exception e) {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(new  Response<>(400, NOT_FOUND));
+                    .body(new  Response<>(500, e.getMessage()));
         }
     }
 
@@ -69,11 +62,11 @@ public class AttendanceController {
         boolean result = attendanceService.saveAllByExcel(file);
         if (result)
             return ResponseEntity.ok(new Response<>(200, "Imported successfully"));
-        return ResponseEntity.badRequest().body(new Response<>(400, "Import failed"));
+        return ResponseEntity.badRequest().body(new Response<>(500, "Import failed"));
     }
 
     @GetMapping("/export")
-    public ResponseEntity<byte[]> export(@RequestParam Long userId,
+    public ResponseEntity<byte[]> export(@RequestParam long userId,
                                          @RequestParam int year,
                                          @RequestParam int month) throws IOException {
         byte[] data = attendanceService.exportToExcelByMonth(userId, year, month);
@@ -84,8 +77,16 @@ public class AttendanceController {
     }
 
     @GetMapping("/student/{studentId}")
-    public ResponseEntity<Response<List<Attendance>>> getByStudent(@PathVariable Long studentId) {
-        List<Attendance> attendanceList = attendanceService.getAllByStudentId(studentId);
-        return ResponseEntity.ok(new Response<>(200, attendanceList));
+    public ResponseEntity<Response<List<Attendance>>> getByStudent(@PathVariable long studentId) {
+        try {
+            List<Attendance> attendanceList = attendanceService.getAllByStudentId(studentId);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new Response<>(200, attendanceList));
+        }catch (Exception e) {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new Response<>(500, e.getMessage()));
+        }
     }
 }

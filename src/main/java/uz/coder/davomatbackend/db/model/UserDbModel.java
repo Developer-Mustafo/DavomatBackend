@@ -2,6 +2,7 @@ package uz.coder.davomatbackend.db.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.time.LocalDate;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -27,6 +28,8 @@ public class UserDbModel {
     private String phoneNumber;
     @Column(name = "role", nullable = false)
     private String role;
+    @Column(name = "payedDate")
+    private LocalDate payedDate;
 
     public UserDbModel(String firstName, String lastName, String email, String password, String phoneNumber, String role) {
         this.firstName = firstName;
@@ -36,6 +39,15 @@ public class UserDbModel {
         this.phoneNumber = phoneNumber;
         this.role = role;
     }
+    public UserDbModel(String firstName, String lastName, String email, String password, String phoneNumber, String role, LocalDate payedDate) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+        this.phoneNumber = phoneNumber;
+        this.role = role;
+        this.payedDate = payedDate;
+    }
 
     public UserDbModel(String firstName, String lastName, String phoneNumber, String role) {
         this.firstName = firstName;
@@ -43,10 +55,11 @@ public class UserDbModel {
         this.phoneNumber = phoneNumber;
         this.role = role;
     }
-
-    public UserDbModel(String firstName, String phoneNumber, String role) {
+    public UserDbModel(String firstName, String lastName, String phoneNumber, String role, LocalDate payedDate) {
         this.firstName = firstName;
+        this.lastName = lastName;
         this.phoneNumber = phoneNumber;
         this.role = role;
+        this.payedDate = payedDate;
     }
 }

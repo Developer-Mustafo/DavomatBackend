@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import uz.coder.davomatbackend.db.model.StudentDbModel;
 import uz.coder.davomatbackend.model.Student;
+import uz.coder.davomatbackend.model.StudentCourseGroup;
 
 import java.util.List;
 
@@ -32,4 +33,12 @@ public interface StudentDatabase extends JpaRepository<StudentDbModel, Long> {
 """)
     List<StudentDbModel> findAllStudentsByOwnerUserId(@Param("userId") long userId);
 
+    @Query("""
+    select new uz.coder.davomatbackend.model.StudentCourseGroup(c, g)
+    from CourseDbModel c
+    join GroupDbModel g on g.courseId = c.id
+    join StudentDbModel s on s.groupId = g.id
+    where s.userId = :userId
+""")
+    List<StudentCourseGroup> findCoursesAndGroupsForStudent(@Param("userId") Long userId);
 }

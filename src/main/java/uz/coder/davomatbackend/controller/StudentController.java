@@ -4,8 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import uz.coder.davomatbackend.model.Course;
 import uz.coder.davomatbackend.model.Student;
 import uz.coder.davomatbackend.model.Response;
+import uz.coder.davomatbackend.model.StudentCourseGroup;
 import uz.coder.davomatbackend.service.StudentService;
 import java.io.IOException;
 import java.util.List;
@@ -105,7 +107,7 @@ public class StudentController {
     }
 
     @GetMapping("/export")
-    public ResponseEntity<byte[]> exportXlsx(@RequestParam("userId") Long userId) throws IOException {
+    public ResponseEntity<byte[]> exportXlsx(@RequestParam("userId") long userId) throws IOException {
         List<Student> students = service.getStudentsByUserId(userId);
         byte[] fileBytes = service.exportStudentsToXlsx(students);
         HttpHeaders headers = new HttpHeaders();
@@ -113,5 +115,19 @@ public class StudentController {
         headers.setContentDisposition(ContentDisposition.attachment().filename("students_user_" + userId + ".xlsx").build());
 
         return new ResponseEntity<>(fileBytes, headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/seeCourses/{userId}")
+    public ResponseEntity<Response<List<StudentCourseGroup>>> findAllCourses(@PathVariable("userId") long userId) {
+        try {
+            List<StudentCourseGroup> result = service.getCourseAndGroupByUserId(userId);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new  Response<>(200, result));
+        }catch (Exception ex){
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new Response<>(500, ex.getMessage()));
+        }
     }
 }

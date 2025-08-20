@@ -7,7 +7,7 @@ import uz.coder.davomatbackend.db.model.GroupDbModel;
 import uz.coder.davomatbackend.model.Group;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import static uz.coder.davomatbackend.todo.Strings.THERE_IS_NO_SUCH_A_GROUP;
 
 @Service
 public class GroupService {
@@ -23,20 +23,22 @@ public class GroupService {
     }
     public Group edit(Group group) {
         database.update(group.getId(), group.getTitle(), group.getCourseId());
-        GroupDbModel save = database.findById(group.getId()).orElse(null);
+        GroupDbModel save = database.findById(group.getId()).orElseThrow(()->new IllegalArgumentException(THERE_IS_NO_SUCH_A_GROUP));
         assert save != null;
         return new Group(save.getId(), save.getTitle(), save.getCourseId());
     }
     public Group findById(long id) {
-        GroupDbModel group = database.findById(id).orElse(null);
+        GroupDbModel group = database.findById(id).orElseThrow(()->new IllegalArgumentException(THERE_IS_NO_SUCH_A_GROUP));
         assert group != null;
         return new Group(group.getId(), group.getTitle(), group.getCourseId());
     }
     public int deleteById(long id) {
-        GroupDbModel group = database.findById(id).orElse(null);
-        assert group != null;
-        database.delete(group);
-        return 1;
+        if (database.existsById(id)){
+            database.deleteById(id);
+            return 1;
+        }else {
+            return 0;
+        }
     }
     public List<Group> findAllGroupByCourseId(long courseId) {
         List<GroupDbModel> allByUserId = database.findAllByCourseId(courseId);

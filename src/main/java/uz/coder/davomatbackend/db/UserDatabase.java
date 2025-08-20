@@ -7,6 +7,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import uz.coder.davomatbackend.db.model.UserDbModel;
+import uz.coder.davomatbackend.model.Balance;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Repository
 public interface UserDatabase extends JpaRepository<UserDbModel, Long> {
@@ -26,4 +30,12 @@ public interface UserDatabase extends JpaRepository<UserDbModel, Long> {
 
     @Query("select u.lastName from UserDbModel u where u.id=:userId")
     String findLastNameById(@Param("userId")  long userId);
+
+    @Modifying
+    @Transactional
+    @Query("update UserDbModel u set u.payedDate=:payedDate where u.id=:id")
+    UserDbModel updateBalanceUser(@Param("payedDate") LocalDate payedDate, @Param("id") long id);
+
+    @Query("select new uz.coder.davomatbackend.model.Balance(u.payedDate, u.id) from UserDbModel u where u.id=:id")
+    Balance getUserBalanceById(@Param("id") long id);
 }

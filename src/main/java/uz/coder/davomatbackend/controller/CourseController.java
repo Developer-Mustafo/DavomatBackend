@@ -60,7 +60,7 @@ public class CourseController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Response<Course>> register(@RequestBody Course course) {
+    public ResponseEntity<Response<Course>> create(@RequestBody Course course) {
         try {
             long userId = course.getUserId();
             User user = userService.findById(userId);

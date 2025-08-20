@@ -56,7 +56,7 @@ public class GroupController {
                     .body(new Response<>(500, e.getMessage()));
         }
     }
-    @GetMapping("/findById/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Response<Group>> findById(@PathVariable("id") long id) {
         try {
             return ResponseEntity.ok()
