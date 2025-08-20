@@ -9,6 +9,8 @@ import uz.coder.davomatbackend.model.Response;
 import uz.coder.davomatbackend.model.User;
 import uz.coder.davomatbackend.service.UserService;
 
+import java.time.LocalDate;
+
 import static uz.coder.davomatbackend.todo.Strings.ROLE_STUDENT;
 
 @RequestMapping("/api/user")
@@ -83,6 +85,7 @@ public class UserController {
                 userByNumberOfPhone.setEmail(user.getEmail());
                 userByNumberOfPhone.setRole(ROLE_STUDENT);
                 userByNumberOfPhone.setPassword(user.getPassword());
+                userByNumberOfPhone.setPayedDate(LocalDate.now().plusWeeks(1));
                 User edit = service.edit(userByNumberOfPhone);
                 return ResponseEntity.ok()
                         .contentType(MediaType.APPLICATION_JSON)
