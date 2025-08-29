@@ -4,10 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import uz.coder.davomatbackend.model.Course;
-import uz.coder.davomatbackend.model.Student;
-import uz.coder.davomatbackend.model.Response;
-import uz.coder.davomatbackend.model.StudentCourseGroup;
+import uz.coder.davomatbackend.model.*;
 import uz.coder.davomatbackend.service.StudentService;
 import java.io.IOException;
 import java.util.List;
@@ -129,5 +126,11 @@ public class StudentController {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(500, ex.getMessage()));
         }
+    }
+    @GetMapping("/balance")
+    public ResponseEntity<Response<Balance>> getUserBalanceByUserId(@RequestParam("telegramUserId") long telegramUserId) {
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new  Response<>(200, service.getUserBalanceByTelegramUserId(telegramUserId)));
     }
 }

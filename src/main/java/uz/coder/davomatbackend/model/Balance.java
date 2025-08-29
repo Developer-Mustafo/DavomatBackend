@@ -10,6 +10,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Balance {
-    private LocalDate date;
-    private long id;
+    private LocalDate limit;
+    private long telegramUserId;
 }

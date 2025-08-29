@@ -6,14 +6,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import uz.coder.davomatbackend.db.CourseDatabase;
-import uz.coder.davomatbackend.db.GroupDatabase;
-import uz.coder.davomatbackend.db.StudentDatabase;
-import uz.coder.davomatbackend.db.UserDatabase;
-import uz.coder.davomatbackend.db.model.CourseDbModel;
-import uz.coder.davomatbackend.db.model.GroupDbModel;
-import uz.coder.davomatbackend.db.model.StudentDbModel;
-import uz.coder.davomatbackend.db.model.UserDbModel;
+import uz.coder.davomatbackend.db.*;
+import uz.coder.davomatbackend.db.model.*;
 import uz.coder.davomatbackend.model.Balance;
 import uz.coder.davomatbackend.model.Student;
 import uz.coder.davomatbackend.model.StudentCourseGroup;
@@ -35,13 +29,15 @@ public class StudentService {
     private final UserDatabase userDatabase;
     private final GroupDatabase groupDatabase;
     private final CourseDatabase courseDatabase;
+    private final TelegramUserDatabase telegramUserDatabase;
 
     @Autowired
-    public StudentService(StudentDatabase database, UserDatabase userDatabase, GroupDatabase groupDatabase, CourseDatabase courseDatabase) {
+    public StudentService(StudentDatabase database, UserDatabase userDatabase, GroupDatabase groupDatabase, CourseDatabase courseDatabase, TelegramUserDatabase telegramUserDatabase) {
         this.database = database;
         this.userDatabase = userDatabase;
         this.groupDatabase = groupDatabase;
         this.courseDatabase = courseDatabase;
+        this.telegramUserDatabase = telegramUserDatabase;
     }
 
     public Student save(Student student) {
@@ -89,8 +85,6 @@ public class StudentService {
             return new Student(item.getId(), fullName, item.getPhoneNumber(), item.getUserId(), item.getGroupId());
         }).collect(Collectors.toList());
     }
-
-    // 🔄 TO‘G‘RILANGAN 1: saveAllByEXEL
     public boolean saveAllByEXEL(MultipartFile file, long userId) {
         try (InputStream inputStream = file.getInputStream();
              Workbook workbook = new XSSFWorkbook(inputStream)) {
@@ -109,8 +103,6 @@ public class StudentService {
                 String phoneNumber = getCellStringValue(row.getCell(2));
                 String groupName = getCellStringValue(row.getCell(3));
                 String courseName = getCellStringValue(row.getCell(4));
-
-                // 1. USERNI TELEFON RAQAMI ORQALI TEKSHIRISH
                 UserDbModel user = userDatabase.findByPhoneNumber(phoneNumber);
                 if (user == null) {
                     String[] nameParts = fullName.trim().split(" ", 2);
@@ -121,8 +113,6 @@ public class StudentService {
                     user = new UserDbModel(firstName, lastName, phoneNumber, ROLE_STUDENT, balance);
                     user = userDatabase.save(user);
                 }
-
-                // 2. COURSE BOR YOKI YO'QLIGINI TEKSHIRISH
                 CourseDbModel matchedCourse = allCourses.stream()
                         .filter(c -> isSimilar(courseName, c.getTitle()))
                         .findFirst()
@@ -131,7 +121,7 @@ public class StudentService {
                             return courseDatabase.save(newCourse);
                         });
 
-                // 3. GROUP BOR YOKI YO'QLIGINI TEKSHIRISH
+
                 GroupDbModel matchedGroup = allGroups.stream()
                         .filter(g -> isSimilar(groupName, g.getTitle()) && g.getCourseId() == matchedCourse.getId())
                         .findFirst()
@@ -140,12 +130,9 @@ public class StudentService {
                             return groupDatabase.save(newGroup);
                         });
 
-                // 4. STUDENTNI TAYYORLASH
                 Student student = new Student(fullName, phoneNumber, user.getId(), matchedGroup.getId());
                 studentList.add(student);
             }
-
-            // 5. BARCHASINI SAQLASH
             studentList.forEach(this::accept);
 
             return true;
@@ -156,7 +143,6 @@ public class StudentService {
         }
     }
 
-    // 🔄 TO‘G‘RILANGAN 2: exportStudentsToXlsx
     public byte[] exportStudentsToXlsx(List<Student> students) throws IOException {
         try (XSSFWorkbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Students");
@@ -191,8 +177,6 @@ public class StudentService {
             return outputStream.toByteArray();
         }
     }
-
-    // Quyidagilar o‘zgartirilmagan, yordamchi metodlar
     private String getCellStringValue(Cell cell) {
         if (cell == null) return "";
         return switch (cell.getCellType()) {
@@ -239,10 +223,10 @@ public class StudentService {
         if (model.getRole().equals(ROLE_STUDENT)) {
             Balance balance = userDatabase.getUserBalanceById(userId);
             LocalDate now = LocalDate.now();
-            if (balance.getDate().isAfter(now)) {
+            if (balance.getLimit().isAfter(now)) {
                 System.out.println("+");
                 return database.findCoursesAndGroupsForStudent(userId);
-            } else if (balance.getDate().isEqual(now)) {
+            } else if (balance.getLimit().isEqual(now)) {
                 System.out.println("+");
                 return database.findCoursesAndGroupsForStudent(userId);
             } else {
@@ -251,5 +235,9 @@ public class StudentService {
         }else {
             throw new IllegalArgumentException(YOU_ARE_NOT_A_STUDENT);
         }
+    }
+    public Balance getUserBalanceByTelegramUserId(long telegramUserId) {
+        TelegramUserDbModel telegramUserDbModel = telegramUserDatabase.findByTelegramUserId(telegramUserId);
+        return userDatabase.getUserBalanceById(telegramUserDbModel.getUserId());
     }
 }

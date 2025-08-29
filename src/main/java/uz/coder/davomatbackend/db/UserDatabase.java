@@ -38,4 +38,6 @@ public interface UserDatabase extends JpaRepository<UserDbModel, Long> {
 
     @Query("select new uz.coder.davomatbackend.model.Balance(u.payedDate, u.id) from UserDbModel u where u.id=:id")
     Balance getUserBalanceById(@Param("id") long id);
+
+    boolean existsByPhoneNumber(String phoneNumber);
 }

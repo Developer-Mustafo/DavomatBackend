@@ -118,9 +118,9 @@ public class UserController {
     }
 
     @PutMapping("/pay")
-    public ResponseEntity<Response<User>> pay(@RequestBody Balance balance) {
+    public ResponseEntity<Response<Boolean>> pay(@RequestBody Balance balance) {
         try {
-            User user = service.updateBalanceUser(balance);
+            boolean user = service.updateBalanceUser(balance);
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(200, user));
