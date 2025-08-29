@@ -54,7 +54,7 @@ public class UserService {
             assert model != null;
             return new User(model.getId(), model.getFirstName(), model.getLastName(), model.getEmail(), model.getPassword(), model.getPhoneNumber(), model.getRole(), model.getPayedDate());
         }catch (Exception e){
-            return null;
+            throw new IllegalArgumentException(THERE_IS_NO_SUCH_A_PERSON);
         }
     }
     public User findByPhoneNumber(String phoneNumber) {
@@ -63,7 +63,7 @@ public class UserService {
             assert model != null;
             return new User(model.getId(), model.getFirstName(), model.getLastName(), model.getEmail(), model.getPassword(), model.getPhoneNumber(), model.getRole(), model.getPayedDate());
         }catch (Exception e){
-            return null;
+            throw new IllegalArgumentException(THERE_IS_NO_SUCH_A_PERSON);
         }
     }
     public User updateBalanceUser(Balance balance){
