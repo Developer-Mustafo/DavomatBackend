@@ -129,8 +129,14 @@ public class StudentController {
     }
     @GetMapping("/balance")
     public ResponseEntity<Response<Balance>> getUserBalanceByUserId(@RequestParam("telegramUserId") long telegramUserId) {
-        return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(new  Response<>(200, service.getUserBalanceByTelegramUserId(telegramUserId)));
+        try {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new  Response<>(200, service.getUserBalanceByTelegramUserId(telegramUserId)));
+        }catch (Exception ex){
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new Response<>(500, ex.getMessage()));
+        }
     }
 }

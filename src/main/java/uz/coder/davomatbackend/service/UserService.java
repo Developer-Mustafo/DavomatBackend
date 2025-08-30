@@ -74,14 +74,18 @@ public class UserService {
         long id = balance.getTelegramUserId();
         LocalDate payDate = balance.getLimit();
         TelegramUserDbModel telegramUserDbModel = telegramUserDatabase.findByTelegramUserId(id);
-        UserDbModel user = database.findById(telegramUserDbModel.getUserId()).orElseThrow(() -> new IllegalArgumentException(THERE_IS_NO_SUCH_A_PERSON));
-        if (user != null) {
-            if (user.getRole().equals(ROLE_STUDENT)){
-                UserDbModel model = database.updateBalanceUser(payDate, id);
-                assert model != null;
-                return true;
+        if(telegramUserDbModel!=null){
+            UserDbModel user = database.findById(telegramUserDbModel.getUserId()).orElseThrow(() -> new IllegalArgumentException(THERE_IS_NO_SUCH_A_PERSON));
+            if (user != null) {
+                if (user.getRole().equals(ROLE_STUDENT)){
+                    UserDbModel model = database.updateBalanceUser(payDate, id);
+                    assert model != null;
+                    return true;
+                }else {
+                    throw new IllegalArgumentException(YOU_ARE_NOT_A_STUDENT);
+                }
             }else {
-                throw new IllegalArgumentException(YOU_ARE_NOT_A_STUDENT);
+                throw new IllegalArgumentException(THERE_IS_NO_SUCH_A_PERSON);
             }
         }else {
             throw new IllegalArgumentException(THERE_IS_NO_SUCH_A_PERSON);

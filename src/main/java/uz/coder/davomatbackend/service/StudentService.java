@@ -238,6 +238,10 @@ public class StudentService {
     }
     public Balance getUserBalanceByTelegramUserId(long telegramUserId) {
         TelegramUserDbModel telegramUserDbModel = telegramUserDatabase.findByTelegramUserId(telegramUserId);
-        return userDatabase.getUserBalanceById(telegramUserDbModel.getUserId());
+        if (telegramUserDbModel!=null){
+            return userDatabase.getUserBalanceById(telegramUserDbModel.getUserId());
+        }else {
+            throw new IllegalArgumentException(THERE_IS_NO_SUCH_A_PERSON);
+        }
     }
 }
