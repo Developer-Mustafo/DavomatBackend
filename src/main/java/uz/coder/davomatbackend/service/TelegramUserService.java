@@ -8,7 +8,6 @@ import uz.coder.davomatbackend.db.model.*;
 import uz.coder.davomatbackend.model.TelegramUser;
 import java.util.List;
 import java.util.stream.Collectors;
-import static uz.coder.davomatbackend.todo.Strings.*;
 
 @Slf4j
 @Service
@@ -21,26 +20,36 @@ public class TelegramUserService {
         this.userDatabase = userDatabase;
     }
     public TelegramUser save(TelegramUser telegramUser){
-        if (database.existsByTelegramUserId(telegramUser.getTelegramUserId())) {
-            if (userDatabase.existsByPhoneNumber(telegramUser.getPhoneNumber())){
-                TelegramUserDbModel telegramUserDbModel = database.findByTelegramUserId(telegramUser.getTelegramUserId());
-                database.update(telegramUserDbModel.getUserId(), telegramUser.getFirstName(), telegramUser.getLastName(), telegramUser.getPhoneNumber());
-                return new TelegramUser(telegramUserDbModel.getId(), telegramUserDbModel.getTelegramUserId(), telegramUserDbModel.getFirstName(), telegramUserDbModel.getLastName(), telegramUserDbModel.getPhoneNumber());
+        if (userDatabase.existsByPhoneNumber(telegramUser.getPhoneNumber())) {
+            UserDbModel user = userDatabase.findByPhoneNumber(telegramUser.getPhoneNumber());
+            if (exactByIdTelegramUserId(telegramUser.getTelegramUserId())) {
+                TelegramUserDbModel model = database.findByTelegramUserId(telegramUser.getTelegramUserId());
+                model.setUserId(model.getId());
+                model.setFirstName(telegramUser.getFirstName());
+                model.setLastName(telegramUser.getLastName());
+                model.setPhoneNumber(telegramUser.getPhoneNumber());
+                database.save(model);
             }else {
-                throw new IllegalArgumentException(THERE_IS_NO_SUCH_A_PERSON);
+                TelegramUserDbModel model = new  TelegramUserDbModel(user.getId(), telegramUser.getTelegramUserId(),  telegramUser.getFirstName(), telegramUser.getLastName(), telegramUser.getPhoneNumber());
+                database.save(model);
             }
         }else {
-            UserDbModel user = userDatabase.findByPhoneNumber(telegramUser.getPhoneNumber());
-            if (user == null){
-                throw new IllegalArgumentException(THERE_IS_NO_SUCH_A_PERSON);
+            if (exactByIdTelegramUserId(telegramUser.getTelegramUserId())) {
+                TelegramUserDbModel model = database.findByTelegramUserId(telegramUser.getTelegramUserId());
+                model.setFirstName(telegramUser.getFirstName());
+                model.setLastName(telegramUser.getLastName());
+                model.setPhoneNumber(telegramUser.getPhoneNumber());
+                database.save(model);
             }else {
-                TelegramUserDbModel model = database.save(new TelegramUserDbModel(user.getId(), telegramUser.getTelegramUserId(), telegramUser.getFirstName(), telegramUser.getLastName(), telegramUser.getPhoneNumber()));
-                telegramUser.setId(model.getId());
-                telegramUser.setTelegramUserId(model.getTelegramUserId());
-                telegramUser.setUserId(user.getId());
-                return telegramUser;
+                TelegramUserDbModel model = new  TelegramUserDbModel(telegramUser.getTelegramUserId(),  telegramUser.getFirstName(), telegramUser.getLastName(), telegramUser.getPhoneNumber());
+                database.save(model);
             }
         }
+        TelegramUserDbModel model = database.findByTelegramUserId(telegramUser.getTelegramUserId());
+        return new TelegramUser(model.getId(), model.getUserId(), model.getTelegramUserId(), model.getFirstName(), model.getLastName(), model.getPhoneNumber());
+    }
+    private boolean exactByIdTelegramUserId(long telegramUserId){
+        return database.existsByTelegramUserId(telegramUserId);
     }
     public List<TelegramUser> findAll() {
         return database.findAll().stream().map(model->new TelegramUser(model.getId(), model.getTelegramUserId(), model.getFirstName(), model.getLastName(), model.getPhoneNumber())).collect(Collectors.toList());
