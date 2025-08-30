@@ -78,7 +78,7 @@ public class UserService {
             UserDbModel user = database.findById(telegramUserDbModel.getUserId()).orElseThrow(() -> new IllegalArgumentException(THERE_IS_NO_SUCH_A_PERSON));
             if (user != null) {
                 if (user.getRole().equals(ROLE_STUDENT)){
-                    UserDbModel model = database.updateBalanceUser(payDate, id);
+                    UserDbModel model = database.updateBalanceUser(payDate, user.getId());
                     assert model != null;
                     return true;
                 }else {
