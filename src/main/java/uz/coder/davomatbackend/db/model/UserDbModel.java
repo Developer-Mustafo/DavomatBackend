@@ -31,14 +31,6 @@ public class UserDbModel {
     @Column(name = "payedDate")
     private LocalDate payedDate;
 
-    public UserDbModel(String firstName, String lastName, String email, String password, String phoneNumber, String role) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = password;
-        this.phoneNumber = phoneNumber;
-        this.role = role;
-    }
     public UserDbModel(String firstName, String lastName, String email, String password, String phoneNumber, String role, LocalDate payedDate) {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -49,12 +41,6 @@ public class UserDbModel {
         this.payedDate = payedDate;
     }
 
-    public UserDbModel(String firstName, String lastName, String phoneNumber, String role) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.phoneNumber = phoneNumber;
-        this.role = role;
-    }
     public UserDbModel(String firstName, String lastName, String phoneNumber, String role, LocalDate payedDate) {
         this.firstName = firstName;
         this.lastName = lastName;
