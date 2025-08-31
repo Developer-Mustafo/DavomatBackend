@@ -31,10 +31,10 @@ public interface UserDatabase extends JpaRepository<UserDbModel, Long> {
     @Query("select u.lastName from UserDbModel u where u.id=:userId")
     String findLastNameById(@Param("userId")  long userId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Transactional
-    @Query("update UserDbModel u set u.payedDate=:payedDate where u.id=:id")
-    UserDbModel updateBalanceUser(@Param("payedDate") LocalDate payedDate, @Param("id") long id);
+    @Query("UPDATE UserDbModel u SET u.payedDate = :payedDate WHERE u.id = :id")
+    int updateBalanceUser(@Param("payedDate") LocalDate payedDate, @Param("id") long id);
 
     @Query("select new uz.coder.davomatbackend.model.Balance(u.payedDate, u.id) from UserDbModel u where u.id=:id")
     Balance getUserBalanceById(@Param("id") long id);
