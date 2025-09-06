@@ -8,9 +8,8 @@ import uz.coder.davomatbackend.model.Balance;
 import uz.coder.davomatbackend.model.Response;
 import uz.coder.davomatbackend.model.User;
 import uz.coder.davomatbackend.service.UserService;
-
+import static uz.coder.davomatbackend.todo.Strings.THIS_PHONE_NUMBER_TAKEN;
 import java.time.LocalDate;
-
 import static uz.coder.davomatbackend.todo.Strings.ROLE_STUDENT;
 
 @RequestMapping("/api/user")
@@ -80,16 +79,22 @@ public class UserController {
         try {
             User userByNumberOfPhone = service.findByPhoneNumber(user.getPhoneNumber());
             if (userByNumberOfPhone != null) {
-                userByNumberOfPhone.setLastName(user.getLastName());
-                userByNumberOfPhone.setFirstName(user.getFirstName());
-                userByNumberOfPhone.setEmail(user.getEmail());
-                userByNumberOfPhone.setRole(ROLE_STUDENT);
-                userByNumberOfPhone.setPassword(user.getPassword());
-                userByNumberOfPhone.setPayedDate(LocalDate.now().plusWeeks(1));
-                User edit = service.edit(userByNumberOfPhone);
-                return ResponseEntity.ok()
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(new Response<>(200, edit));
+                if(userByNumberOfPhone.getEmail() == null){
+                    userByNumberOfPhone.setLastName(user.getLastName());
+                    userByNumberOfPhone.setFirstName(user.getFirstName());
+                    userByNumberOfPhone.setEmail(user.getEmail());
+                    userByNumberOfPhone.setRole(ROLE_STUDENT);
+                    userByNumberOfPhone.setPassword(user.getPassword());
+                    userByNumberOfPhone.setPayedDate(LocalDate.now().plusWeeks(1));
+                    User edit = service.edit(userByNumberOfPhone);
+                    return ResponseEntity.ok()
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(new Response<>(200, edit));
+                }else {
+                    return ResponseEntity.ok()
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(new Response<>(500, THIS_PHONE_NUMBER_TAKEN));
+                }
             }else {
                 User save = service.save(user);
                 return  ResponseEntity.ok()
