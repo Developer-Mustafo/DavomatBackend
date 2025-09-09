@@ -1,5 +1,6 @@
 package uz.coder.davomatbackend.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -17,6 +18,7 @@ public class User {
     private String password;
     private String phoneNumber;
     private String role;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate payedDate;
 
     public User(String firstName, String lastName, String email, String password, String phoneNumber, String role, LocalDate payedDate) {
