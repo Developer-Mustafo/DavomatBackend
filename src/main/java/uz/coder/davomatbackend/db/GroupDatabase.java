@@ -19,4 +19,10 @@ public interface GroupDatabase extends JpaRepository<GroupDbModel, Long> {
 
     @Query("select g from GroupDbModel g where g.courseId=:courseId")
     List<GroupDbModel> findAllByCourseId(@Param("courseId") long courseId);
+
+    @Query("""
+        select g from GroupDbModel g
+        where g.courseId in :courseIds
+    """)
+    List<GroupDbModel> findGroupsByCourseIds(@Param("courseIds") List<Long> courseIds);
 }
