@@ -37,8 +37,10 @@ public interface StudentDatabase extends JpaRepository<StudentDbModel, Long> {
     select new uz.coder.davomatbackend.model.StudentCourseGroup(c, g)
     from CourseDbModel c
     join GroupDbModel g on g.courseId = c.id
-    join StudentDbModel s on s.groupId = g.id
-    where s.userId = :userId
+    where exists (
+        select 1 from StudentDbModel s
+        where s.groupId = g.id and s.userId = :userId
+    )
 """)
     List<StudentCourseGroup> findCoursesAndGroupsForStudent(@Param("userId") Long userId);
 }

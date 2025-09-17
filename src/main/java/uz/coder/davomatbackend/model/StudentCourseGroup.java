@@ -7,11 +7,13 @@ import lombok.ToString;
 import uz.coder.davomatbackend.db.model.CourseDbModel;
 import uz.coder.davomatbackend.db.model.GroupDbModel;
 
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @ToString
 public class StudentCourseGroup {
     private CourseDbModel course;
-    private GroupDbModel group;
+    private List<GroupDbModel> group;
 }
