@@ -15,7 +15,7 @@ public class StudentDbModel {
     @Id
     @Column(name = "id", nullable = false)
     private long id;
-    @Column(name = "phone_number", nullable = false, unique = true)
+    @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
     @Column(name = "userId", nullable = false)
     private long userId;
