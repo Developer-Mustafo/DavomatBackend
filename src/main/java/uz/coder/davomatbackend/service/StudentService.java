@@ -240,38 +240,40 @@ public class StudentService {
 
     private List<StudentCourseGroup> findCoursesAndGroupsForStudent(long userId) {
         try {
-            // 1-query: userId bo'yicha kurslarni olish
+            // 1. userId bo'yicha kurslarni olish
             List<CourseDbModel> courses = courseDatabase.findAllByUserId(userId);
             if (courses.isEmpty()) {
-                return List.of(); // Agar kurs yo'q bo'lsa, bo'sh list qaytar
+                return List.of(); // Agar kurs yo'q bo'lsa, bo'sh list qaytariladi
             }
 
             // Kurs ID'larni yig'ish
             List<Long> courseIds = courses.stream()
                     .map(CourseDbModel::getId)
-                    .collect(Collectors.toList());
+                    .toList();
 
-            // 2-query: Kurs ID'lari bo'yicha barcha group'larni olish
+            // 2. Kurs ID'lari bo'yicha barcha group'larni olish
             List<GroupDbModel> allGroups = groupDatabase.findGroupsByCourseIds(courseIds);
 
-            // Group'larni kurs bo'yicha grouping qilish (Map<CourseId, List<Group>>)
-            Map<Long, List<GroupDbModel>> groupsByCourse = allGroups.stream()
-                    .collect(Collectors.groupingBy(GroupDbModel::getCourseId));
+            // Group'larni kursId bo'yicha grouping qilish
+            Map<Long, List<GroupDbModel>> groupsByCourse =
+                    allGroups.stream()
+                            .collect(Collectors.groupingBy(GroupDbModel::getCourseId));
 
-            // Har bir kurs uchun StudentCourseGroup yaratish
+            // 3. Har bir kurs uchun StudentCourseGroup obyektini yaratish
             return courses.stream()
-                    .map(course -> {
-                        List<GroupDbModel> courseGroups = groupsByCourse.getOrDefault(course.getId(), List.of());
-                        return new StudentCourseGroup(course, courseGroups);
-                    })
-                    .collect(Collectors.toList());
+                    .map(course -> new StudentCourseGroup(
+                            course,
+                            groupsByCourse.getOrDefault(course.getId(), List.of())
+                    ))
+                    .toList();
 
         } catch (Exception e) {
-            // Xatolikni log qilish va server crash'ini oldini olish
+            // Xatolikni log qilish (log framework ishlatsa ham bo‘ladi)
             System.err.println("Xatolik: Student course groups olishda xato - " + e.getMessage());
             return List.of();
         }
     }
+
 
     public Balance getUserBalanceByTelegramUserId(long telegramUserId) {
         TelegramUserDbModel telegramUserDbModel = telegramUserDatabase.findByTelegramUserId(telegramUserId);
