@@ -241,7 +241,7 @@ public class StudentService {
     private List<StudentCourseGroup> findCoursesAndGroupsForStudent(long userId) {
         try {
             // 1. userId bo'yicha kurslarni olish
-            List<CourseDbModel> courses = courseDatabase.findAllByUserId(userId);
+            List<CourseDbModel> courses = courseDatabase.findAllByStudentId(userId);
             if (courses.isEmpty()) {
                 return List.of(); // Agar kurs yo'q bo'lsa, bo'sh list qaytariladi
             }

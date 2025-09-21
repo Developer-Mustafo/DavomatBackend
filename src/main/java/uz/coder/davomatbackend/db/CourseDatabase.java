@@ -18,4 +18,13 @@ public interface CourseDatabase extends JpaRepository<CourseDbModel, Long> {
 
     @Query("select c from CourseDbModel c where c.userId=:userId")
     List<CourseDbModel> findAllByUserId(@Param("userId") long userId);
+
+    @Query("""
+    select c
+    from StudentDbModel s
+    join GroupDbModel g on s.groupId = g.id
+    join CourseDbModel c on g.courseId = c.id
+    where s.userId = :userId
+""")
+    List<CourseDbModel> findAllByStudentId(@Param("userId") long userId);
 }
