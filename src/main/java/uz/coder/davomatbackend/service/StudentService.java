@@ -292,11 +292,16 @@ public class StudentService {
         }else if (!existsByGroupId) {
             throw new IllegalArgumentException(THERE_IS_NO_SUCH_A_GROUP);
         }else {
-            String firstName = userDatabase.findFirstNameById(userId);
-            String lastName = userDatabase.findLastNameById(userId);
-            String fullName = firstName+" "+lastName;
-            StudentDbModel model = database.findStudentsByUserIdAndGroupId(userId, groupId);
-            return new Student(model.getId(), fullName, model.getPhoneNumber(), model.getUserId(), model.getGroupId());
+            Balance balance = userDatabase.getUserBalanceById(userId);
+            if (balance.getLimit().isAfter(LocalDate.now()) || balance.getLimit().isEqual(LocalDate.now())) {
+                String firstName = userDatabase.findFirstNameById(userId);
+                String lastName = userDatabase.findLastNameById(userId);
+                String fullName = firstName+" "+lastName;
+                StudentDbModel model = database.findStudentsByUserIdAndGroupId(userId, groupId);
+                return new Student(model.getId(), fullName, model.getPhoneNumber(), model.getUserId(), model.getGroupId());
+            }else {
+                throw new IllegalArgumentException(YOUR_BALANCE_IS_EMPTY);
+            }
         }
     }
 }

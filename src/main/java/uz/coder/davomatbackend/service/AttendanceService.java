@@ -14,14 +14,12 @@ import uz.coder.davomatbackend.db.model.AttendanceDbModel;
 import uz.coder.davomatbackend.db.model.GroupDbModel;
 import uz.coder.davomatbackend.db.model.StudentDbModel;
 import uz.coder.davomatbackend.model.Attendance;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
-
 import static uz.coder.davomatbackend.todo.Strings.*;
 
 @Slf4j
