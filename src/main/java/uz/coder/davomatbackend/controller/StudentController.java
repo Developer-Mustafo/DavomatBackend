@@ -139,4 +139,17 @@ public class StudentController {
                     .body(new Response<>(500, ex.getMessage()));
         }
     }
+
+    @GetMapping("/findByGroupIdAndUserId")
+    public ResponseEntity<Response<Student>> findByGroupIdAndUserId(@RequestParam long userId, @RequestParam long groupId) {
+        try {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new Response<>(200, service.findByGroupIdAndUserId(userId, groupId)));
+        } catch (Exception e) {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new  Response<>(500, e.getMessage()));
+        }
+    }
 }
