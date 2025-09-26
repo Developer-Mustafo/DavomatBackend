@@ -7,8 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import uz.coder.davomatbackend.db.model.StudentDbModel;
-import uz.coder.davomatbackend.model.Student;
-import uz.coder.davomatbackend.model.StudentCourseGroup;
 
 import java.util.List;
 
