@@ -1,54 +1,83 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Davomat App - Backend</title>
-  <link rel="icon" type="image/x-icon" href="/davomat_app.ico">
-  <link rel="stylesheet" href="/style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Davomat App</title>
+  <link rel="icon" type="image/x-icon" href="davomat_app.ico">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>Davomat App</h1>
-    <nav>
-      <a href="#about">Haqida</a>
-      <a href="#features">Xususiyatlar</a>
-      <a href="#contact">Aloqa</a>
-    </nav>
-    <button id="darkToggle">🌙</button>
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <h1 class="brand-title">Davomat App</h1>
+      </div>
+      <nav class="nav">
+        <a href="#features">Xususiyatlar</a>
+        <a href="#contact">Aloqa</a>
+      </nav>
+      <button id="darkToggle" class="dark-toggle" aria-label="Toggle dark mode">🌙</button>
+    </div>
   </header>
 
   <main>
-    <!-- Haqida -->
-    <section id="about" class="card">
-      <h2>ℹ️ Haqida</h2>
-      <p><b>Davomat App</b> — davomat tizimini boshqarish uchun backend. 
-         Spring Boot asosida yozilgan, mobil ilova bilan ulanadi.</p>
+    <section class="hero">
+      <div class="container hero-inner">
+        <h2>Davomatni soddalashtiring — tez va ishonchli</h2>
+        <p class="lead">Davomat App backend ishlayapti. Admin va o’quvchilar uchun qulay tizim — statistikalar, hisobotlar va xavfsizlik.</p>
+        <a href="#contact" class="btn-primary">Bog'lanish</a>
+      </div>
     </section>
 
-    <!-- Xususiyatlar -->
-    <section id="features" class="card">
-      <h2>⚡ Xususiyatlar</h2>
-      <ul id="feature-list"></ul>
+    <section id="features" class="section container">
+      <h3 class="section-title">Xususiyatlar</h3>
+      <div class="cards">
+        <div class="card">
+          <h4>Davomat nazorati</h4>
+          <p>O‘quvchi va xodimlar davomati real vaqt rejimida kuzatiladi.</p>
+        </div>
+        <div class="card">
+          <h4>Statistikalar</h4>
+          <p>Oson tushunarli diagramma va eksport imkoniyatlari.</p>
+        </div>
+        <div class="card">
+          <h4>Xavfsizlik</h4>
+          <p>Ma’lumotlar shifrlanadi va himoyalanadi.</p>
+        </div>
+      </div>
     </section>
 
-    <!-- Aloqa -->
-    <section id="contact" class="card">
-      <h2>📬 Aloqa</h2>
-      <form id="contact-form">
-        <input type="text" name="name" placeholder="Ismingiz" required>
-        <input type="email" name="email" placeholder="Email" required>
-        <textarea name="message" placeholder="Xabaringiz" required></textarea>
-        <button type="submit">Yuborish</button>
-      </form>
-      <p id="form-message"></p>
+    <section id="contact" class="section container">
+      <h3 class="section-title">Aloqa</h3>
+      <div class="contact-grid">
+        <div class="contact-info">
+          <p>Savollaringiz bo‘lsa yozing — biz sizga tezda javob beramiz.</p>
+          <ul class="info-list">
+            <li><strong>Email:</strong> mustaforahimov30@gmail.com</li>
+            <li><strong>Telefon:</strong> +998 90 557 97 65</li>
+          </ul>
+        </div>
+
+        <form id="contact-form" class="contact-form" autocomplete="off">
+          <input type="text" name="name" placeholder="Ismingiz" required>
+          <input type="email" name="email" placeholder="Email" required>
+          <textarea name="message" placeholder="Xabaringiz" rows="5" required></textarea>
+          <div class="form-row">
+            <button type="submit" class="btn-primary">Yuborish</button>
+            <span id="form-message" class="form-message" role="status" aria-live="polite"></span>
+          </div>
+        </form>
+      </div>
     </section>
   </main>
 
-  <footer>
-    &copy; 2025 Davomat App. Minimalistik backend sahifa.
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy;Davomat App</p>
+    </div>
   </footer>
 
-  <script src="/script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

@@ -1,12 +1,9 @@
 package uz.coder.davomatbackend.controller;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import uz.coder.davomatbackend.service.EmailService;
 
 import java.util.Map;
 
@@ -14,27 +11,32 @@ import java.util.Map;
 @RequestMapping("/api/contact")
 public class ContactController {
 
-    private final JavaMailSender mailSender;
+    private final EmailService emailService;
 
-    public ContactController(JavaMailSender mailSender) {
-        this.mailSender = mailSender;
+    // application.properties dan oladi
+    @Value("${spring.mail.username}")
+    private String toEmail;
+
+    public ContactController(EmailService emailService) {
+        this.emailService = emailService;
     }
 
     @PostMapping("/contact")
     public ResponseEntity<String> sendMail(@RequestBody Map<String, String> data) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo("mustaforahimov30@gmail.com");
-            message.setSubject("Davomat App Contact Form");
-            message.setText(
-                    "Ism: " + data.get("name") +
-                            "\nEmail: " + data.get("email") +
-                            "\nXabar: " + data.get("message")
+            String emailText = "Ism: " + data.get("name") +
+                    "\nEmail: " + data.get("email") +
+                    "\nXabar: " + data.get("message");
+
+            emailService.sendEmail(
+                    toEmail,  // propertiesdan olingan
+                    "Davomat App Contact Form",
+                    emailText
             );
-            mailSender.send(message);
-            return ResponseEntity.ok("Success");
+
+            return ResponseEntity.ok("Xabaringiz yuborildi!");
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error");
+            return ResponseEntity.status(500).body("Serverda xatolik yuz berdi");
         }
     }
 }

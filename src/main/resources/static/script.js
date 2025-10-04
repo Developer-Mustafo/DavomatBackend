@@ -20,6 +20,7 @@ const formMessage = document.getElementById("form-message");
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   formMessage.textContent = "⏳ Yuborilmoqda...";
+  form.querySelector('button').disabled = true;
 
   const data = {
     name: form.name.value,
@@ -28,13 +29,11 @@ form.addEventListener("submit", async (e) => {
   };
 
   try {
-    const response = await fetch("/api/contact/contact", {  // relative path ishlatiladi
+    const response = await fetch("/api/contact/contact", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)
     });
-
-    console.log("Fetch status:", response.status);
 
     if (response.ok) {
       formMessage.textContent = "✅ Xabaringiz yuborildi!";
@@ -45,6 +44,8 @@ form.addEventListener("submit", async (e) => {
   } catch (err) {
     console.error("Fetch error:", err);
     formMessage.textContent = "⚠️ Serverga ulanishda xatolik.";
+  } finally {
+    form.querySelector('button').disabled = false;
   }
 });
 
