@@ -7,51 +7,69 @@ const features = [
 ];
 
 const featureList = document.getElementById("feature-list");
-features.forEach(f => {
-  const li = document.createElement("li");
-  li.textContent = f;
-  featureList.appendChild(li);
-});
+if (featureList) {
+  features.forEach(f => {
+    const li = document.createElement("li");
+    li.textContent = f;
+    featureList.appendChild(li);
+  });
+}
 
 // Kontakt formasi
 const form = document.getElementById("contact-form");
 const formMessage = document.getElementById("form-message");
 
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  formMessage.textContent = "⏳ Yuborilmoqda...";
-  form.querySelector('button').disabled = true;
+if (form) {
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-  const data = {
-    name: form.name.value,
-    email: form.email.value,
-    message: form.message.value
-  };
+    const submitButton = form.querySelector('button');
+    submitButton.disabled = true;
+    formMessage.textContent = "⏳ Yuborilmoqda...";
 
-  try {
-    const response = await fetch("/api/contact/contact", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    });
+    const data = {
+      name: form.name.value.trim(),
+      email: form.email.value.trim(),
+      message: form.message.value.trim()
+    };
 
-    if (response.ok) {
-      formMessage.textContent = "✅ Xabaringiz yuborildi!";
-      form.reset();
-    } else {
-      formMessage.textContent = "❌ Xato: yuborilmadi.";
+    try {
+      const response = await fetch("/api/contact/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      if (response.ok) {
+        formMessage.textContent = "✅ Xabaringiz yuborildi!";
+        form.reset();
+      } else {
+        const errText = await response.text();
+        formMessage.textContent = `❌ Xato: ${errText || "yuborilmadi."}`;
+      }
+    } catch (err) {
+      console.error("Fetch error:", err);
+      formMessage.textContent = "⚠️ Serverga ulanishda xatolik.";
+    } finally {
+      submitButton.disabled = false;
     }
-  } catch (err) {
-    console.error("Fetch error:", err);
-    formMessage.textContent = "⚠️ Serverga ulanishda xatolik.";
-  } finally {
-    form.querySelector('button').disabled = false;
-  }
-});
+  });
+}
 
 // Dark mode toggle
 const darkToggle = document.getElementById("darkToggle");
-darkToggle.addEventListener("click", () => {
-  document.body.classList.toggle("dark");
-  darkToggle.textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
-});
+if (darkToggle) {
+  darkToggle.addEventListener("click", () => {
+    document.body.classList.toggle("dark");
+    // Saqlash localStorage’da dark mode holati
+    const isDark = document.body.classList.contains("dark");
+    localStorage.setItem("darkMode", isDark);
+    darkToggle.textContent = isDark ? "☀️" : "🌙";
+  });
+
+  // Sahifa yuklanganda oldingi holatni tiklash
+  if (localStorage.getItem("darkMode") === "true") {
+    document.body.classList.add("dark");
+    darkToggle.textContent = "☀️";
+  }
+}
