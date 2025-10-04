@@ -3,6 +3,8 @@ package uz.coder.davomatbackend.db.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -21,10 +23,13 @@ public class StudentDbModel {
     private long userId;
     @Column(name = "groupId",  nullable = false)
     private long groupId;
+    @Column(name = "createdDate")
+    private LocalDate createdDate;
 
-    public StudentDbModel(String phoneNumber, long userId,  long groupId) {
+    public StudentDbModel(String phoneNumber, long userId,  long groupId,  LocalDate createdDate) {
         this.phoneNumber = phoneNumber;
         this.userId = userId;
         this.groupId = groupId;
+        this.createdDate = createdDate;
     }
 }

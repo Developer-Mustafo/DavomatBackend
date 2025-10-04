@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Davomat App - Backend</title>
+  <link rel="icon" type="image/x-icon" href="/davomat_app.ico">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <h1>Davomat App</h1>
+    <nav>
+      <a href="#about">Haqida</a>
+      <a href="#features">Xususiyatlar</a>
+      <a href="#contact">Aloqa</a>
+    </nav>
+    <button id="darkToggle">🌙</button>
+  </header>
+
+  <main>
+    <!-- Haqida -->
+    <section id="about" class="card">
+      <h2>ℹ️ Haqida</h2>
+      <p><b>Davomat App</b> — davomat tizimini boshqarish uchun backend. 
+         Spring Boot asosida yozilgan, mobil ilova bilan ulanadi.</p>
+    </section>
+
+    <!-- Xususiyatlar -->
+    <section id="features" class="card">
+      <h2>⚡ Xususiyatlar</h2>
+      <ul id="feature-list"></ul>
+    </section>
+
+    <!-- Aloqa -->
+    <section id="contact" class="card">
+      <h2>📬 Aloqa</h2>
+      <form id="contact-form">
+        <input type="text" name="name" placeholder="Ismingiz" required>
+        <input type="email" name="email" placeholder="Email" required>
+        <textarea name="message" placeholder="Xabaringiz" required></textarea>
+        <button type="submit">Yuborish</button>
+      </form>
+      <p id="form-message"></p>
+    </section>
+  </main>
+
+  <footer>
+    &copy; 2025 Davomat App. Minimalistik backend sahifa.
+  </footer>
+
+  <script src="/script.js"></script>
+</body>
+</html>

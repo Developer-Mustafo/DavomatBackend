@@ -42,21 +42,21 @@ public class StudentService {
     }
 
     public Student save(Student student) {
-        StudentDbModel save = database.save(new StudentDbModel(student.getPhoneNumber(), student.getUserId(), student.getGroupId()));
+        StudentDbModel save = database.save(new StudentDbModel(student.getPhoneNumber(), student.getUserId(), student.getGroupId(), LocalDate.now()));
         String firstNameById = userDatabase.findFirstNameById(student.getUserId());
         String lastNameById = userDatabase.findLastNameById(student.getUserId());
         String fullName = firstNameById + " " + lastNameById;
-        return new Student(save.getId(), fullName, save.getPhoneNumber(), save.getUserId(), save.getGroupId());
+        return new Student(save.getId(), fullName, save.getPhoneNumber(), save.getUserId(), save.getGroupId(), save.getCreatedDate());
     }
 
     public Student edit(Student student) {
         database.update(student.getId(), student.getPhoneNumber(), student.getUserId(), student.getGroupId());
-        StudentDbModel save = database.findById(student.getId()).orElseThrow(()->new IllegalArgumentException(THERE_IS_NO_SUCH_A_PERSON));
-        assert save != null;
+        StudentDbModel model = database.findById(student.getId()).orElseThrow(()->new IllegalArgumentException(THERE_IS_NO_SUCH_A_PERSON));
+        assert model != null;
         String firstNameById = userDatabase.findFirstNameById(student.getUserId());
         String lastNameById = userDatabase.findLastNameById(student.getUserId());
         String fullName = firstNameById + " " + lastNameById;
-        return new Student(save.getId(), fullName, save.getPhoneNumber(), save.getUserId(), save.getGroupId());
+        return new Student(model.getId(), fullName, model.getPhoneNumber(), model.getUserId(), model.getGroupId(), model.getCreatedDate());
     }
 
     public Student findById(long id) {
@@ -65,7 +65,7 @@ public class StudentService {
         String firstNameById = userDatabase.findFirstNameById(student.getUserId());
         String lastNameById = userDatabase.findLastNameById(student.getUserId());
         String fullName = firstNameById + " " + lastNameById;
-        return new Student(student.getId(), fullName, student.getPhoneNumber(), student.getUserId(), student.getGroupId());
+        return new Student(student.getId(), fullName, student.getPhoneNumber(), student.getUserId(), student.getGroupId(), student.getCreatedDate());
     }
 
     public int deleteById(long id) {
@@ -79,12 +79,7 @@ public class StudentService {
 
     public List<Student> findAllStudentByGroupId(long groupId) {
         List<StudentDbModel> allByUserId = database.findAllByGroupId(groupId);
-        return allByUserId.stream().map(item -> {
-            String firstNameById = userDatabase.findFirstNameById(item.getUserId());
-            String lastNameById = userDatabase.findLastNameById(item.getUserId());
-            String fullName = firstNameById + " " + lastNameById;
-            return new Student(item.getId(), fullName, item.getPhoneNumber(), item.getUserId(), item.getGroupId());
-        }).collect(Collectors.toList());
+        return getStudents(allByUserId);
     }
     public boolean saveAllByEXEL(MultipartFile file, long userId) {
         try (InputStream inputStream = file.getInputStream();
@@ -204,7 +199,7 @@ public class StudentService {
 
     private void accept(Student student) {
         try {
-            database.save(new StudentDbModel(student.getPhoneNumber(), student.getUserId(), student.getGroupId()));
+            database.save(new StudentDbModel(student.getPhoneNumber(), student.getUserId(), student.getGroupId(), LocalDate.now()));
         } catch (Exception e) {
             log.error("e: ", e);
         }
@@ -212,13 +207,18 @@ public class StudentService {
 
     public List<Student> getStudentsByUserId(long userId) {
         List<StudentDbModel> students = database.findAllStudentsByOwnerUserId(userId);
+        return getStudents(students);
+    }
+
+    private List<Student> getStudents(List<StudentDbModel> students) {
         return students.stream().map(item -> {
             String firstNameById = userDatabase.findFirstNameById(item.getUserId());
             String lastNameById = userDatabase.findLastNameById(item.getUserId());
             String fullName = firstNameById + " " + lastNameById;
-            return new Student(item.getId(), fullName, item.getPhoneNumber(), item.getUserId(), item.getGroupId());
+            return new Student(item.getId(), fullName, item.getPhoneNumber(), item.getUserId(), item.getGroupId(), item.getCreatedDate());
         }).collect(Collectors.toList());
     }
+
     public List<StudentCourseGroup> getCourseAndGroupByUserId(long userId) {
         UserDbModel model = userDatabase.findById(userId).orElseThrow(() -> new IllegalArgumentException(THERE_IS_NO_SUCH_A_PERSON));
         if (model.getRole().equals(ROLE_STUDENT)) {
@@ -298,7 +298,7 @@ public class StudentService {
                 String lastName = userDatabase.findLastNameById(userId);
                 String fullName = firstName+" "+lastName;
                 StudentDbModel model = database.findStudentsByUserIdAndGroupId(userId, groupId);
-                return new Student(model.getId(), fullName, model.getPhoneNumber(), model.getUserId(), model.getGroupId());
+                return new Student(model.getId(), fullName, model.getPhoneNumber(), model.getUserId(), model.getGroupId(), model.getCreatedDate());
             }else {
                 throw new IllegalArgumentException(YOUR_BALANCE_IS_EMPTY);
             }

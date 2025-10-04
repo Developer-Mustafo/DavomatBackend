@@ -1,0 +1,111 @@
+:root {
+  --primary: orange;
+  --background: #fafafa;
+  --text: #222;
+  --card: #fff;
+}
+
+body.dark {
+  --background: #1e1e1e;
+  --text: #ddd;
+  --card: #2c2c2c;
+  --primary: #ff9800;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+  background: var(--background);
+  color: var(--text);
+  transition: all 0.3s ease;
+}
+
+header {
+  background: var(--card);
+  border-bottom: 1px solid #ddd;
+  padding: 15px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+}
+
+header h1 {
+  font-size: 22px;
+  margin: 0;
+  color: var(--primary);
+}
+
+nav a {
+  margin-left: 20px;
+  text-decoration: none;
+  color: var(--text);
+  font-size: 16px;
+}
+
+nav a:hover {
+  color: var(--primary);
+}
+
+#darkToggle {
+  margin-left: 20px;
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+main {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 0 15px;
+}
+
+.card {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 25px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+}
+
+button {
+  background: var(--primary);
+  border: none;
+  padding: 10px 16px;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+input, textarea {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  color: #777;
+  font-size: 14px;
+}
