@@ -27,9 +27,9 @@ public class ContactController {
             message.setTo("mustaforahimov30@gmail.com");
             message.setSubject("Davomat App Contact Form");
             message.setText(
-                "Ism: " + data.get("name") +
-                "\nEmail: " + data.get("email") +
-                "\nXabar: " + data.get("message")
+                    "Ism: " + data.get("name") +
+                            "\nEmail: " + data.get("email") +
+                            "\nXabar: " + data.get("message")
             );
             mailSender.send(message);
             return ResponseEntity.ok("Success");
