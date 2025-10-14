@@ -61,8 +61,8 @@ public class AttendanceController {
     public ResponseEntity<Response<String>> importExcel(@RequestParam MultipartFile file) {
         boolean result = attendanceService.saveAllByExcel(file);
         if (result)
-            return ResponseEntity.ok(new Response<>(200, "Imported successfully"));
-        return ResponseEntity.badRequest().body(new Response<>(500, "Import failed"));
+            return ResponseEntity.ok(new Response<>(200, "Imported successfully", null));
+        return ResponseEntity.badRequest().body(new Response<>(500, null, "Import failed"));
     }
 
     @GetMapping("/export/{userId}/{year}/{month}")

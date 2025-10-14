@@ -87,19 +87,19 @@ public class StudentController {
             // Faqat .xls fayllar uchun ruxsat beriladi
             if (!Objects.requireNonNull(file.getOriginalFilename()).endsWith(".xlsx")) {
                 return ResponseEntity.badRequest()
-                        .body(new Response<>(400, "Faqat .xls formatdagi fayl yuklash mumkin"));
+                        .body(new Response<>(500, null,"Faqat .xls formatdagi fayl yuklash mumkin"));
             }
 
             boolean result = service.saveAllByExcel(file, userId);
             if (result) {
-                return ResponseEntity.ok(new Response<>(200, "Fayl muvaffaqiyatli saqlandi"));
+                return ResponseEntity.ok(new Response<>(200, "Fayl muvaffaqiyatli saqlandi", null));
             } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(new Response<>(500, "Xatolik yuz berdi"));
+                        .body(new Response<>(500, null, "Xatolik yuz berdi"));
             }
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new Response<>(500, "Xatolik: " + ex.getMessage()));
+                    .body(new Response<>(500, null, "Xatolik: " + ex.getMessage()));
         }
     }
 
