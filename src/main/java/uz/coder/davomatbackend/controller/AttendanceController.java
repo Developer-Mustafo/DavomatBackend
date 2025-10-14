@@ -66,11 +66,11 @@ public class AttendanceController {
         return ResponseEntity.badRequest().body(new Response<>(500, null, "Import failed"));
     }
 
-    @GetMapping("/export/{userId}/{year}/{month}")
+    @GetMapping("/export")
     public ResponseEntity<byte[]> exportAttendance(
-            @PathVariable("userId") long userId,
-            @PathVariable("year") int year,
-            @PathVariable("month") int month,
+            @RequestParam("userId") long userId,
+            @RequestParam("year") int year,
+            @RequestParam("month") int month,
             @RequestParam(name = "courseId", required = false) Long courseId,
             @RequestParam(name = "groupId", required = false) Long groupId) {
 
