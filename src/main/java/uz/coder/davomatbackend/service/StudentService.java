@@ -81,13 +81,12 @@ public class StudentService {
         List<StudentDbModel> allByUserId = database.findAllByGroupId(groupId);
         return getStudents(allByUserId);
     }
-    public boolean saveAllByEXEL(MultipartFile file, long userId) {
+    public boolean saveAllByExcel(MultipartFile file, long userId) {
         try (InputStream inputStream = file.getInputStream();
              Workbook workbook = new XSSFWorkbook(inputStream)) {
 
             Sheet sheet = workbook.getSheetAt(0);
             List<Student> studentList = new ArrayList<>();
-
             List<GroupDbModel> allGroups = groupDatabase.findAll();
             List<CourseDbModel> allCourses = courseDatabase.findAll();
 
@@ -99,42 +98,37 @@ public class StudentService {
                 String phoneNumber = getCellStringValue(row.getCell(2));
                 String groupName = getCellStringValue(row.getCell(3));
                 String courseName = getCellStringValue(row.getCell(4));
+
                 UserDbModel user = userDatabase.findByPhoneNumber(phoneNumber);
                 if (user == null) {
                     String[] nameParts = fullName.trim().split(" ", 2);
                     String firstName = nameParts.length > 0 ? nameParts[0] : "";
                     String lastName = nameParts.length > 1 ? nameParts[1] : "";
                     LocalDate now = LocalDate.now();
-                    LocalDate balance = now.plusWeeks(1);
-                    user = new UserDbModel(firstName, lastName, phoneNumber, ROLE_STUDENT, balance);
+                    LocalDate balanceDate = now.plusWeeks(1);
+                    user = new UserDbModel(firstName, lastName, phoneNumber, ROLE_STUDENT, balanceDate);
                     user = userDatabase.save(user);
                 }
+
                 CourseDbModel matchedCourse = allCourses.stream()
                         .filter(c -> isSimilar(courseName, c.getTitle()))
                         .findFirst()
-                        .orElseGet(() -> {
-                            CourseDbModel newCourse = new CourseDbModel(courseName, "", userId);
-                            return courseDatabase.save(newCourse);
-                        });
-
+                        .orElseGet(() -> courseDatabase.save(new CourseDbModel(courseName, "", userId)));
 
                 GroupDbModel matchedGroup = allGroups.stream()
                         .filter(g -> isSimilar(groupName, g.getTitle()) && g.getCourseId() == matchedCourse.getId())
                         .findFirst()
-                        .orElseGet(() -> {
-                            GroupDbModel newGroup = new GroupDbModel(groupName, matchedCourse.getId());
-                            return groupDatabase.save(newGroup);
-                        });
+                        .orElseGet(() -> groupDatabase.save(new GroupDbModel(groupName, matchedCourse.getId())));
 
                 Student student = new Student(fullName, phoneNumber, user.getId(), matchedGroup.getId());
                 studentList.add(student);
             }
-            studentList.forEach(this::accept);
 
+            studentList.forEach(this::accept);
             return true;
 
         } catch (Exception e) {
-            log.error("Faylni o'qishda xatolik yuz berdi: ", e);
+            log.error("Excel faylni o'qishda xatolik: ", e);
             return false;
         }
     }

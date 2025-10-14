@@ -65,17 +65,21 @@ public class AttendanceController {
         return ResponseEntity.badRequest().body(new Response<>(500, "Import failed"));
     }
 
-    @GetMapping("/export")
-    public ResponseEntity<byte[]> export(@RequestParam long userId,
-                                         @RequestParam int year,
-                                         @RequestParam int month) throws IOException {
-        byte[] data = attendanceService.exportToExcelByMonth(userId, year, month);
+    @GetMapping("/export/{userId}/{year}/{month}")
+    public ResponseEntity<byte[]> export(
+            @PathVariable long userId,
+            @PathVariable int year,
+            @PathVariable int month,
+            @RequestParam(required = false) Long courseId, // optional
+            @RequestParam(required = false) Long groupId   // optional
+    ) throws IOException {
+        byte[] data = attendanceService.exportToExcelByMonth(userId, courseId, groupId, year, month);
+
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=attendance.xlsx")
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(data);
     }
-
     @GetMapping("/student/{studentId}")
     public ResponseEntity<Response<List<Attendance>>> getByStudent(@PathVariable long studentId) {
         try {

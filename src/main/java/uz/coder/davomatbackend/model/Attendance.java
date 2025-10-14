@@ -13,7 +13,7 @@ public class Attendance {
     private Long id;
     private Long studentId;
     private LocalDate date;
-    private String status; // "+" yoki "-" yoki "Bor"/"Yo'q"
+    private String status;
 
     public Attendance(Long studentId, LocalDate date, String status) {
         this.studentId = studentId;

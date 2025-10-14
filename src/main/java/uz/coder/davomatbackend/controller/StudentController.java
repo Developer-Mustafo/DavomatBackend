@@ -90,7 +90,7 @@ public class StudentController {
                         .body(new Response<>(400, "Faqat .xls formatdagi fayl yuklash mumkin"));
             }
 
-            boolean result = service.saveAllByEXEL(file, userId);
+            boolean result = service.saveAllByExcel(file, userId);
             if (result) {
                 return ResponseEntity.ok(new Response<>(200, "Fayl muvaffaqiyatli saqlandi"));
             } else {

@@ -8,9 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import uz.coder.davomatbackend.db.model.UserDbModel;
 import uz.coder.davomatbackend.model.Balance;
-
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Repository
 public interface UserDatabase extends JpaRepository<UserDbModel, Long> {
