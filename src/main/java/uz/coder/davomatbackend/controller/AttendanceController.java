@@ -2,6 +2,7 @@ package uz.coder.davomatbackend.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -71,19 +72,36 @@ public class AttendanceController {
             @PathVariable("year") int year,
             @PathVariable("month") int month,
             @RequestParam(name = "courseId", required = false) Long courseId,
-            @RequestParam(name = "groupId", required = false) Long groupId
-    ) {
+            @RequestParam(name = "groupId", required = false) Long groupId) {
+
         try {
-            // Excel faylni yaratish va byte[] olish
+            // Validatsiya
+            if (year < 2000 || year > 2100) {
+                return ResponseEntity.badRequest()
+                        .body("Invalid year. Must be between 2000-2100".getBytes());
+            }
+            if (month < 1 || month > 12) {
+                return ResponseEntity.badRequest()
+                        .body("Invalid month. Must be between 1-12".getBytes());
+            }
+
+            // Excel faylni yaratish
             byte[] data = attendanceService.exportToExcelByMonth(userId, courseId, groupId, year, month);
 
-            // Response yuborish, fayl nomi va media type to‘g‘ri belgilandi
+            // Dinamik fayl nomi
+            String filename = String.format("attendance_%d_%d_%d.xlsx", userId, year, month);
+
             return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"attendance.xlsx\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
                     .body(data);
+
         } catch (IOException e) {
-            return ResponseEntity.status(500).body(null); // server xatosi bo‘lsa
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(("File creation failed: " + e.getMessage()).getBytes());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(("Export failed: " + e.getMessage()).getBytes());
         }
     }
     @GetMapping("/student/{studentId}")
