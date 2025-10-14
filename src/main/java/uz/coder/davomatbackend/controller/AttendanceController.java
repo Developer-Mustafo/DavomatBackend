@@ -66,19 +66,25 @@ public class AttendanceController {
     }
 
     @GetMapping("/export/{userId}/{year}/{month}")
-    public ResponseEntity<byte[]> export(
-            @PathVariable long userId,
-            @PathVariable int year,
-            @PathVariable int month,
-            @RequestParam(required = false) Long courseId, // optional
-            @RequestParam(required = false) Long groupId   // optional
-    ) throws IOException {
-        byte[] data = attendanceService.exportToExcelByMonth(userId, courseId, groupId, year, month);
+    public ResponseEntity<byte[]> exportAttendance(
+            @PathVariable("userId") long userId,
+            @PathVariable("year") int year,
+            @PathVariable("month") int month,
+            @RequestParam(name = "courseId", required = false) Long courseId,
+            @RequestParam(name = "groupId", required = false) Long groupId
+    ) {
+        try {
+            // Excel faylni yaratish va byte[] olish
+            byte[] data = attendanceService.exportToExcelByMonth(userId, courseId, groupId, year, month);
 
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=attendance.xlsx")
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(data);
+            // Response yuborish, fayl nomi va media type to‘g‘ri belgilandi
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"attendance.xlsx\"")
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(data);
+        } catch (IOException e) {
+            return ResponseEntity.status(500).body(null); // server xatosi bo‘lsa
+        }
     }
     @GetMapping("/student/{studentId}")
     public ResponseEntity<Response<List<Attendance>>> getByStudent(@PathVariable long studentId) {
