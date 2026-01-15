@@ -70,6 +70,15 @@ public class UserService {
             return null;
         }
     }
+    public User findByEmail(String email) {
+        try {
+            UserDbModel model = database.findByEmail(email);
+            assert model != null;
+            return new User(model.getId(), model.getFirstName(), model.getLastName(), model.getEmail(), model.getPassword(), model.getPhoneNumber(), model.getRole(), model.getPayedDate());
+        }catch (Exception e){
+            return null;
+        }
+    }
     public boolean updateBalanceUser(Balance balance) {
         long id = balance.getTelegramUserId();
         LocalDate payDate = balance.getLimit();

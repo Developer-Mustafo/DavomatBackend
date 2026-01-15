@@ -21,21 +21,8 @@ public class UserController {
     public UserController(UserService service) {
         this.service = service;
     }
-    @PostMapping("/login")
-    public ResponseEntity<Response<User>> login(@RequestParam("email") String email, @RequestParam("password") String password) {
-        try {
-            User user = service.login(email, password);
-            return  ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(new Response<>(200, user));
-        }catch (Exception e){
-            return ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(new Response<>(500, e.getMessage()));
-        }
-    }
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Response<Integer>> deleteById(@PathVariable("id") long id) {
+    public ResponseEntity<Response<Integer>> deleteById(@PathVariable long id) {
         try {
             int data = service.deleteById(id);
             return  ResponseEntity.ok()
@@ -48,7 +35,7 @@ public class UserController {
         }
     }
     @GetMapping("/{id}")
-    public ResponseEntity<Response<User>> findById(@PathVariable("id") long id) {
+    public ResponseEntity<Response<User>> findById(@PathVariable long id) {
         try {
             User user = service.findById(id);
             return  ResponseEntity.ok()
@@ -61,7 +48,7 @@ public class UserController {
         }
     }
     @GetMapping("/phone/{phoneNumber}")
-    public ResponseEntity<Response<User>> findByPhone(@PathVariable("phoneNumber") String phoneNumber) {
+    public ResponseEntity<Response<User>> findByPhone(@PathVariable String phoneNumber) {
         try {
             User user = service.findByPhoneNumber(phoneNumber);
             return  ResponseEntity.ok()
@@ -73,41 +60,6 @@ public class UserController {
                     .body(new Response<>(500, e.getMessage()));
         }
     }
-
-    @PostMapping("/register")
-    public ResponseEntity<Response<User>> register(@RequestBody User user) {
-        try {
-            User userByNumberOfPhone = service.findByPhoneNumber(user.getPhoneNumber());
-            if (userByNumberOfPhone != null) {
-                if(userByNumberOfPhone.getEmail() == null){
-                    userByNumberOfPhone.setLastName(user.getLastName());
-                    userByNumberOfPhone.setFirstName(user.getFirstName());
-                    userByNumberOfPhone.setEmail(user.getEmail());
-                    userByNumberOfPhone.setRole(ROLE_STUDENT);
-                    userByNumberOfPhone.setPassword(user.getPassword());
-                    userByNumberOfPhone.setPayedDate(LocalDate.now().plusWeeks(1));
-                    User edit = service.edit(userByNumberOfPhone);
-                    return ResponseEntity.ok()
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .body(new Response<>(200, edit));
-                }else {
-                    return ResponseEntity.ok()
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .body(new Response<>(500, THIS_PHONE_NUMBER_TAKEN));
-                }
-            }else {
-                User save = service.save(user);
-                return  ResponseEntity.ok()
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(new Response<>(200, save));
-            }
-        }catch (Exception e){
-            return ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(new Response<>(500, e.getMessage()));
-        }
-    }
-
     @PutMapping("/update")
     public ResponseEntity<Response<User>> update(@RequestBody User user) {
         try {

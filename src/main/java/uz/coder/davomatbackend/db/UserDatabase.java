@@ -38,4 +38,7 @@ public interface UserDatabase extends JpaRepository<UserDbModel, Long> {
     Balance getUserBalanceById(@Param("id") long id);
 
     boolean existsByPhoneNumber(String phoneNumber);
+
+    @Query("select u from UserDbModel u where u.email=:email")
+    UserDbModel findByEmail(String email);
 }
