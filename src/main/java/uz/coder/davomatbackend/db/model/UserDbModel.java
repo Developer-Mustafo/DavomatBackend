@@ -28,7 +28,7 @@ public class UserDbModel {
     private String phoneNumber;
     @Column(name = "role", nullable = false)
     private String role;
-    @Column(name = "payedDate")
+    @Column(name = "payed_date")
     private LocalDate payedDate;
 
     public UserDbModel(String firstName, String lastName, String email, String password, String phoneNumber, String role, LocalDate payedDate) {

@@ -12,4 +12,6 @@ public interface TelegramUserDatabase extends JpaRepository<TelegramUserDbModel,
     TelegramUserDbModel findByTelegramUserId(@Param("telegramUserId") long telegramUserId);
 
     boolean existsByTelegramUserId(long telegramUserId);
+    @Query("select t from TelegramUserDbModel t where t.userId=:userId")
+    TelegramUserDbModel findByUserId(long userId);
 }

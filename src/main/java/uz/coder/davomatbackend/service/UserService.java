@@ -1,6 +1,8 @@
 package uz.coder.davomatbackend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import uz.coder.davomatbackend.db.TelegramUserDatabase;
 import uz.coder.davomatbackend.db.UserDatabase;
@@ -13,7 +15,7 @@ import java.time.LocalDate;
 import static uz.coder.davomatbackend.todo.Strings.*;
 
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
     private final UserDatabase database;
     private final TelegramUserDatabase telegramUserDatabase;
 
@@ -52,15 +54,7 @@ public class UserService {
             return 0;
         }
     }
-    public User login(String email, String password) {
-        try {
-            UserDbModel model = database.findByEmailAndPassword(email, password);
-            assert model != null;
-            return new User(model.getId(), model.getFirstName(), model.getLastName(), model.getEmail(), model.getPassword(), model.getPhoneNumber(), model.getRole(), model.getPayedDate());
-        }catch (Exception e){
-            throw new IllegalArgumentException(THERE_IS_NO_SUCH_A_PERSON);
-        }
-    }
+
     public User findByPhoneNumber(String phoneNumber) {
         try {
             UserDbModel model = database.findByPhoneNumber(phoneNumber);
@@ -70,15 +64,7 @@ public class UserService {
             return null;
         }
     }
-    public User findByEmail(String email) {
-        try {
-            UserDbModel model = database.findByEmail(email);
-            assert model != null;
-            return new User(model.getId(), model.getFirstName(), model.getLastName(), model.getEmail(), model.getPassword(), model.getPhoneNumber(), model.getRole(), model.getPayedDate());
-        }catch (Exception e){
-            return null;
-        }
-    }
+
     public boolean updateBalanceUser(Balance balance) {
         long id = balance.getTelegramUserId();
         LocalDate payDate = balance.getLimit();
@@ -97,5 +83,15 @@ public class UserService {
 
         int updatedRows = database.updateBalanceUser(payDate, user.getId());
         return updatedRows > 0;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String email) {
+        UserDbModel model = database.findByEmail(email);
+        return new User(model.getId(), model.getFirstName(), model.getLastName(), model.getEmail(), model.getPassword(), model.getPhoneNumber(), model.getRole(), model.getPayedDate());
+    }
+    public User findByEmail(String email){
+        UserDbModel model = database.findByEmail(email);
+        return new User(model.getId(), model.getFirstName(), model.getLastName(), model.getEmail(), model.getPassword(), model.getPhoneNumber(), model.getRole(), model.getPayedDate());
     }
 }

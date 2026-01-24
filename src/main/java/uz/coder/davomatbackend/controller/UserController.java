@@ -3,81 +3,79 @@ package uz.coder.davomatbackend.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import uz.coder.davomatbackend.model.Balance;
 import uz.coder.davomatbackend.model.Response;
 import uz.coder.davomatbackend.model.User;
 import uz.coder.davomatbackend.service.UserService;
-import static uz.coder.davomatbackend.todo.Strings.THIS_PHONE_NUMBER_TAKEN;
-import java.time.LocalDate;
-import static uz.coder.davomatbackend.todo.Strings.ROLE_STUDENT;
 
 @RequestMapping("/api/user")
 @RestController
 public class UserController {
+
     private final UserService service;
 
     @Autowired
     public UserController(UserService service) {
         this.service = service;
     }
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Response<Integer>> deleteById(@PathVariable long id) {
+
+    // Token orqali userId olish
+    private User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName(); // username/email token ichida
+        return service.findByEmail(username); // yoki username bilan topish
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<Response<Integer>> deleteMe() {
         try {
-            int data = service.deleteById(id);
-            return  ResponseEntity.ok()
+            User currentUser = getCurrentUser();
+            int data = service.deleteById(currentUser.getId());
+            return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(200, data));
-        }catch (Exception e){
-            return ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(new Response<>(500, e.getMessage()));
-        }
-    }
-    @GetMapping("/{id}")
-    public ResponseEntity<Response<User>> findById(@PathVariable long id) {
-        try {
-            User user = service.findById(id);
-            return  ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(new Response<>(200, user));
-        }catch (Exception e){
-            return ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(new Response<>(500, e.getMessage()));
-        }
-    }
-    @GetMapping("/phone/{phoneNumber}")
-    public ResponseEntity<Response<User>> findByPhone(@PathVariable String phoneNumber) {
-        try {
-            User user = service.findByPhoneNumber(phoneNumber);
-            return  ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(new Response<>(200, user));
-        }catch (Exception e){
-            return ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(new Response<>(500, e.getMessage()));
-        }
-    }
-    @PutMapping("/update")
-    public ResponseEntity<Response<User>> update(@RequestBody User user) {
-        try {
-            User edit = service.edit(user);
-            return  ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(new Response<>(200, edit));
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(500, e.getMessage()));
         }
     }
 
-    @PutMapping("/pay")
-    public ResponseEntity<Response<Boolean>> pay(@RequestBody Balance balance) {
+    @GetMapping("/me")
+    public ResponseEntity<Response<User>> getMe() {
         try {
-            boolean user = service.updateBalanceUser(balance);
+            User currentUser = getCurrentUser();
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new Response<>(200, currentUser));
+        } catch (Exception e) {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new Response<>(500, e.getMessage()));
+        }
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<Response<User>> updateMe(@RequestBody User userUpdate) {
+        try {
+            User currentUser = getCurrentUser();
+            userUpdate.setId(currentUser.getId()); // tokendagi userId bilan override
+            User updatedUser = service.edit(userUpdate);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new Response<>(200, updatedUser));
+        } catch (Exception e) {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new Response<>(500, e.getMessage()));
+        }
+    }
+    @GetMapping("/find-by-phone-number/{phoneNumber}")
+    public ResponseEntity<Response<User>> findByPhoneNumber(@PathVariable String phoneNumber){
+        try {
+            User user = service.findByPhoneNumber(phoneNumber);
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(200, user));

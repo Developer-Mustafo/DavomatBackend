@@ -1,11 +1,12 @@
 package uz.coder.davomatbackend.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import uz.coder.davomatbackend.model.Response;
 import uz.coder.davomatbackend.model.Course;
+import uz.coder.davomatbackend.model.Response;
 import uz.coder.davomatbackend.model.User;
 import uz.coder.davomatbackend.service.CourseService;
 import uz.coder.davomatbackend.service.UserService;
@@ -14,45 +15,56 @@ import java.util.List;
 
 import static uz.coder.davomatbackend.todo.Strings.*;
 
-@RequestMapping("/api/course")
 @RestController
+@RequestMapping("/api/course")
 public class CourseController {
+
     private final CourseService service;
     private final UserService userService;
 
-    @Autowired
     public CourseController(CourseService service, UserService userService) {
         this.service = service;
         this.userService = userService;
     }
-    @DeleteMapping("/delete/{userId}/{id}")
-    public ResponseEntity<Response<Integer>> deleteById(@PathVariable("id") long id, @PathVariable("userId")  long userId) {
+
+    // Token orqali userId olinadi
+    private User getCurrentUser() {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+        return userService.findByEmail(userDetails.getUsername());
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Response<Integer>> deleteById(@PathVariable long id) {
         try {
-            User user = userService.findById(userId);
-            if (user.getRole().equals(ROLE_ADMIN) ||  user.getRole().equals(ROLE_TEACHER)) {
+            User user = getCurrentUser();
+            if (user.getRole().equals(ROLE_ADMIN) || user.getRole().equals(ROLE_TEACHER)) {
                 int data = service.deleteById(id);
-                return  ResponseEntity.ok()
+                return ResponseEntity.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(new Response<>(200, data));
             } else {
-                return  ResponseEntity.ok()
+                return ResponseEntity.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(new Response<>(500, YOU_ARE_A_STUDENT));
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(500, e.getMessage()));
         }
     }
+
     @GetMapping("/{id}")
-    public ResponseEntity<Response<Course>> findById(@PathVariable("id") long id) {
+    public ResponseEntity<Response<Course>> findById(@PathVariable long id) {
         try {
             Course course = service.findById(id);
-            return  ResponseEntity.ok()
+            return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(200, course));
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(500, e.getMessage()));
@@ -62,20 +74,19 @@ public class CourseController {
     @PostMapping("/create")
     public ResponseEntity<Response<Course>> create(@RequestBody Course course) {
         try {
-            long userId = course.getUserId();
-            User user = userService.findById(userId);
+            User user = getCurrentUser();
+            course.setUserId(user.getId()); // userId token orqali olinadi
             if (user.getRole().equals(ROLE_ADMIN) || user.getRole().equals(ROLE_TEACHER)) {
                 Course save = service.save(course);
                 return ResponseEntity.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(new Response<>(200, save));
-            }
-            else {
+            } else {
                 return ResponseEntity.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(new Response<>(500, YOU_ARE_A_STUDENT));
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(500, e.getMessage()));
@@ -85,32 +96,34 @@ public class CourseController {
     @PutMapping("/update")
     public ResponseEntity<Response<Course>> update(@RequestBody Course course) {
         try {
-            long userId = course.getUserId();
-            User user = userService.findById(userId);
+            User user = getCurrentUser();
+            course.setUserId(user.getId()); // userId token orqali olinadi
             if (user.getRole().equals(ROLE_ADMIN) || user.getRole().equals(ROLE_TEACHER)) {
                 Course edit = service.edit(course);
-                return  ResponseEntity.ok()
+                return ResponseEntity.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(new Response<>(200, edit));
-            }else {
+            } else {
                 return ResponseEntity.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(new Response<>(500, YOU_ARE_A_STUDENT));
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(500, e.getMessage()));
         }
     }
-    @GetMapping("/getAllCourses/{userId}")
-    public ResponseEntity<Response<List<Course>>> getAllCourses(@PathVariable("userId") long userId) {
+
+    @GetMapping("/getAllCourses")
+    public ResponseEntity<Response<List<Course>>> getAllCourses() {
         try {
-            List<Course> all = service.findAll(userId);
+            User user = getCurrentUser(); // token asosida userId
+            List<Course> all = service.findAll(user.getId());
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(new  Response<>(200, all));
-        }catch (Exception e){
+                    .body(new Response<>(200, all));
+        } catch (Exception e) {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(500, e.getMessage()));

@@ -28,23 +28,50 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
+                // ❌ CSRF o‘chiq (JWT uchun shart)
                 .csrf(AbstractHttpConfigurer::disable)
+
+                // 🔐 Session yo‘q (STATLESS)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
+
+                // 🔑 Authorization qoidalari
                 .authorizeHttpRequests(auth -> auth
+                        // 🔓 AUTH (login, register)
                         .requestMatchers("/auth/**").permitAll()
-                        .anyRequest().authenticated()
+
+                        // 🔓 Telegram API public (tokensiz ishlaydi)
+                        .requestMatchers("/api/telegram/**").permitAll()
+
+                        // 🔓 SWAGGER
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
+
+                        // 🔐 Qolgan API faqat TOKEN bilan
+                        .requestMatchers("/api/**").authenticated()
+
+                        // qolganlar
+                        .anyRequest().permitAll()
                 )
+
+
+                // 🔍 JWT FILTER
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+
+    // 🔐 Password encoder
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    // 🔑 AuthenticationManager
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration config

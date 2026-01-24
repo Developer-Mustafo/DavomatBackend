@@ -1,11 +1,15 @@
 package uz.coder.davomatbackend.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import uz.coder.davomatbackend.model.*;
 import uz.coder.davomatbackend.service.StudentService;
+import uz.coder.davomatbackend.service.TelegramUserService;
+import uz.coder.davomatbackend.service.UserService;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
@@ -13,11 +17,24 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/api/student")
 public class StudentController {
-    private final StudentService service;
 
-    @Autowired
-    public StudentController(StudentService service) {
+    private final StudentService service;
+    private final UserService userService;
+    private final TelegramUserService telegramUserService;
+
+    public StudentController(StudentService service, UserService userService, TelegramUserService telegramUserService) {
         this.service = service;
+        this.userService = userService;
+        this.telegramUserService = telegramUserService;
+    }
+
+    // 🔑 Token orqali current userni olish
+    private User getCurrentUser() {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+        return userService.findByEmail(userDetails.getUsername());
     }
 
     @PostMapping("/addStudent")
@@ -26,71 +43,75 @@ public class StudentController {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(200, service.save(student)));
-        }catch (Exception ex){
+        } catch (Exception ex) {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(500, ex.getMessage()));
         }
     }
+
     @PutMapping("/editStudent")
     public ResponseEntity<Response<Student>> editStudent(@RequestBody Student student) {
         try {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(200, service.edit(student)));
-        }catch (Exception ex){
+        } catch (Exception ex) {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(500, ex.getMessage()));
         }
     }
+
     @DeleteMapping("/deleteStudent/{id}")
-    public ResponseEntity<Response<Integer>> deleteStudent(@PathVariable("id") long id) {
+    public ResponseEntity<Response<Integer>> deleteStudent(@PathVariable long id) {
         try {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(200, service.deleteById(id)));
         } catch (Exception e) {
-            return  ResponseEntity.ok()
+            return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(500, e.getMessage()));
         }
     }
+
     @GetMapping("/{id}")
-    public ResponseEntity<Response<Student>> findById(@PathVariable("id") long id) {
+    public ResponseEntity<Response<Student>> findById(@PathVariable long id) {
         try {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(200, service.findById(id)));
-        }catch (Exception ex){
+        } catch (Exception ex) {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(500, ex.getMessage()));
         }
     }
+
     @GetMapping("/findByGroupId/{groupId}")
-    public ResponseEntity<Response<List<Student>>> findByGroupId(@PathVariable("groupId") long groupId) {
+    public ResponseEntity<Response<List<Student>>> findByGroupId(@PathVariable long groupId) {
         try {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(200, service.findAllStudentByGroupId(groupId)));
-        }catch (Exception ex){
+        } catch (Exception ex) {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(500, ex.getMessage()));
         }
     }
 
-    @PostMapping(value = "/upload-excel/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Response<String>> uploadExcel(@RequestParam MultipartFile file, @PathVariable("userId") long userId) {
+    @PostMapping(value = "/upload-excel", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Response<String>> uploadExcel(@RequestParam MultipartFile file) {
         try {
-            // Faqat .xls fayllar uchun ruxsat beriladi
+            User user = getCurrentUser(); // token orqali userId
             if (!Objects.requireNonNull(file.getOriginalFilename()).endsWith(".xlsx")) {
                 return ResponseEntity.badRequest()
-                        .body(new Response<>(500, null,"Faqat .xls formatdagi fayl yuklash mumkin"));
+                        .body(new Response<>(500, null, "Faqat .xlsx formatdagi fayl yuklash mumkin"));
             }
 
-            boolean result = service.saveAllByExcel(file, userId);
+            boolean result = service.saveAllByExcel(file, user.getId());
             if (result) {
                 return ResponseEntity.ok(new Response<>(200, "Fayl muvaffaqiyatli saqlandi", null));
             } else {
@@ -104,36 +125,41 @@ public class StudentController {
     }
 
     @GetMapping("/export")
-    public ResponseEntity<byte[]> exportXlsx(@RequestParam("userId") long userId) throws IOException {
-        List<Student> students = service.getStudentsByUserId(userId);
+    public ResponseEntity<byte[]> exportXlsx() throws IOException {
+        User user = getCurrentUser(); // token orqali userId
+        List<Student> students = service.getStudentsByUserId(user.getId());
         byte[] fileBytes = service.exportStudentsToXlsx(students);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
-        headers.setContentDisposition(ContentDisposition.attachment().filename("students_user_" + userId + ".xlsx").build());
+        headers.setContentDisposition(ContentDisposition.attachment().filename("students_user_" + user.getId() + ".xlsx").build());
 
         return new ResponseEntity<>(fileBytes, headers, HttpStatus.OK);
     }
 
-    @GetMapping("/seeCourses/{userId}")
-    public ResponseEntity<Response<List<StudentCourseGroup>>> findAllCourses(@PathVariable("userId") long userId) {
+    @GetMapping("/seeCourses")
+    public ResponseEntity<Response<List<StudentCourseGroup>>> findAllCourses() {
         try {
-            List<StudentCourseGroup> result = service.getCourseAndGroupByUserId(userId);
+            User user = getCurrentUser(); // token orqali userId
+            List<StudentCourseGroup> result = service.getCourseAndGroupByUserId(user.getId());
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(new  Response<>(200, result));
-        }catch (Exception ex){
+                    .body(new Response<>(200, result));
+        } catch (Exception ex) {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(500, ex.getMessage()));
         }
     }
+
     @GetMapping("/balance")
-    public ResponseEntity<Response<Balance>> getUserBalanceByUserId(@RequestParam("telegramUserId") long telegramUserId) {
+    public ResponseEntity<Response<Balance>> getUserBalanceByTelegram() {
         try {
+            User user = getCurrentUser(); // token orqali userId
+            TelegramUser telegramUserServiceByUserId = telegramUserService.findByUserId(user.getId());
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(new  Response<>(200, service.getUserBalanceByTelegramUserId(telegramUserId)));
-        }catch (Exception ex){
+                    .body(new Response<>(200, service.getUserBalanceByTelegramUserId(telegramUserServiceByUserId.getTelegramUserId())));
+        } catch (Exception ex) {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(500, ex.getMessage()));
@@ -141,15 +167,16 @@ public class StudentController {
     }
 
     @GetMapping("/findByGroupIdAndUserId")
-    public ResponseEntity<Response<Student>> findByGroupIdAndUserId(@RequestParam long userId, @RequestParam long groupId) {
+    public ResponseEntity<Response<Student>> findByGroupIdAndUserId(@RequestParam long groupId) {
         try {
+            User user = getCurrentUser(); // token orqali userId
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(new Response<>(200, service.findByGroupIdAndUserId(userId, groupId)));
+                    .body(new Response<>(200, service.findByGroupIdAndUserId(user.getId(), groupId)));
         } catch (Exception e) {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(new  Response<>(500, e.getMessage()));
+                    .body(new Response<>(500, e.getMessage()));
         }
     }
 }

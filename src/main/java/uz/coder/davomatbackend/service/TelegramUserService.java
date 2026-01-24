@@ -54,4 +54,8 @@ public class TelegramUserService {
     public List<TelegramUser> findAll() {
         return database.findAll().stream().map(model->new TelegramUser(model.getId(), model.getTelegramUserId(), model.getFirstName(), model.getLastName(), model.getPhoneNumber())).collect(Collectors.toList());
     }
+    public TelegramUser findByUserId(long userId){
+        TelegramUserDbModel model = database.findByUserId(userId);
+        return new TelegramUser(model.getId(), model.getUserId(), model.getTelegramUserId(), model.getFirstName(), model.getLastName(), model.getPhoneNumber());
+    }
 }

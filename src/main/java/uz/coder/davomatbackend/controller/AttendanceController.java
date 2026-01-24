@@ -5,11 +5,15 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import uz.coder.davomatbackend.model.Attendance;
 import uz.coder.davomatbackend.model.Response;
+import uz.coder.davomatbackend.model.User;
 import uz.coder.davomatbackend.service.AttendanceService;
+import uz.coder.davomatbackend.service.UserService;
 
 import java.io.IOException;
 import java.util.List;
@@ -20,6 +24,7 @@ import java.util.List;
 public class AttendanceController {
 
     private final AttendanceService attendanceService;
+    private final UserService userService;
 
     @PostMapping("/add")
     public ResponseEntity<Response<Attendance>> save(@RequestBody Attendance attendance) {
@@ -44,17 +49,18 @@ public class AttendanceController {
             return ResponseEntity.ok(new Response<>(200, "Deleted successfully"));
         return ResponseEntity.status(404).body(new Response<>(404, "Not found"));
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<Response<Attendance>> findById(@PathVariable long id) {
         try {
             Attendance attendance = attendanceService.findById(id);
             return ResponseEntity.ok()
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(new Response<>(200, attendance));
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new Response<>(200, attendance));
         } catch (Exception e) {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(new  Response<>(500, e.getMessage()));
+                    .body(new Response<>(500, e.getMessage()));
         }
     }
 
@@ -66,15 +72,23 @@ public class AttendanceController {
         return ResponseEntity.badRequest().body(new Response<>(500, null, "Import failed"));
     }
 
+    // ✅ UserId token orqali olinadi
     @GetMapping("/export")
     public ResponseEntity<byte[]> exportAttendance(
-            @RequestParam("userId") long userId,
             @RequestParam("year") int year,
             @RequestParam("month") int month,
             @RequestParam(name = "courseId", required = false) Long courseId,
             @RequestParam(name = "groupId", required = false) Long groupId) {
 
         try {
+            UserDetails userDetails = (UserDetails) SecurityContextHolder
+                    .getContext()
+                    .getAuthentication()
+                    .getPrincipal();
+
+            User user = userService.findByEmail(userDetails.getUsername());
+            long userId = user.getId();
+
             // Validatsiya
             if (year < 2000 || year > 2100) {
                 return ResponseEntity.badRequest()
@@ -104,6 +118,8 @@ public class AttendanceController {
                     .body(("Export failed: " + e.getMessage()).getBytes());
         }
     }
+
+    // studentId frontdan qabul qilinadi
     @GetMapping("/student/{studentId}")
     public ResponseEntity<Response<List<Attendance>>> getByStudent(@PathVariable long studentId) {
         try {
@@ -111,7 +127,7 @@ public class AttendanceController {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(200, attendanceList));
-        }catch (Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(500, e.getMessage()));
