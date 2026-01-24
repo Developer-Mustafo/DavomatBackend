@@ -28,14 +28,6 @@ public class TelegramUserController {
         this.userService = userService;
     }
 
-    // Token orqali telegramUser olish
-    private TelegramUser getCurrentTelegramUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName(); // token ichidagi username/email
-        User user = userService.findByEmail(username);
-        return service.findByUserId(user.getId());
-    }
-
     @PostMapping("/register")
     public ResponseEntity<Response<TelegramUser>> register(@RequestBody TelegramUser telegramUser) {
         try {
@@ -68,8 +60,6 @@ public class TelegramUserController {
     @PutMapping("/pay")
     public ResponseEntity<Response<Boolean>> payMe(@RequestBody Balance balance) {
         try {
-            TelegramUser currentUser = getCurrentTelegramUser();
-            balance.setTelegramUserId(currentUser.getId());
             boolean success = userService.updateBalanceUser(balance);
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)

@@ -24,12 +24,10 @@ public class CourseService {
     public Course edit(Course course) {
         database.update(course.getId(), course.getTitle(), course.getDescription(), course.getUserId());
         CourseDbModel save = database.findById(course.getId()).orElseThrow(()->new IllegalArgumentException(THERE_IS_NO_SUCH_A_COURSE));
-        assert save != null;
         return new Course(save.getId(), save.getTitle(), save.getDescription(), save.getUserId());
     }
     public Course findById(long id) {
         CourseDbModel course = database.findById(id).orElseThrow(()->new IllegalArgumentException(THERE_IS_NO_SUCH_A_COURSE));
-        assert course != null;
         return new Course(course.getId(), course.getTitle(), course.getDescription(), course.getUserId());
     }
     public int deleteById(long id) {

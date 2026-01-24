@@ -38,13 +38,7 @@ public class UserService implements UserDetailsService {
     public User edit(User user) {
         database.update(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword(), user.getPhoneNumber(), user.getRole());
         UserDbModel save = database.findById(user.getId()).orElseThrow(()->new IllegalArgumentException(THERE_IS_NO_SUCH_A_PERSON));
-        assert save != null;
         return new User(save.getId(), save.getFirstName(), save.getLastName(), save.getEmail(), save.getPassword(), save.getPhoneNumber(), save.getRole(), save.getPayedDate());
-    }
-    public User findById(long id) {
-        UserDbModel user = database.findById(id).orElseThrow(()->new IllegalArgumentException(THERE_IS_NO_SUCH_A_PERSON));
-        assert user != null;
-        return new User(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword(), user.getPhoneNumber(), user.getRole(), user.getPayedDate());
     }
     public int deleteById(long id) {
         if (database.existsById(id)){

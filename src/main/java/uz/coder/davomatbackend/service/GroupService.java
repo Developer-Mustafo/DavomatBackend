@@ -24,12 +24,10 @@ public class GroupService {
     public Group edit(Group group) {
         database.update(group.getId(), group.getTitle(), group.getCourseId());
         GroupDbModel save = database.findById(group.getId()).orElseThrow(()->new IllegalArgumentException(THERE_IS_NO_SUCH_A_GROUP));
-        assert save != null;
         return new Group(save.getId(), save.getTitle(), save.getCourseId());
     }
     public Group findById(long id) {
         GroupDbModel group = database.findById(id).orElseThrow(()->new IllegalArgumentException(THERE_IS_NO_SUCH_A_GROUP));
-        assert group != null;
         return new Group(group.getId(), group.getTitle(), group.getCourseId());
     }
     public int deleteById(long id) {

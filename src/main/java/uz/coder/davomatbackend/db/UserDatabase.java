@@ -17,9 +17,6 @@ public interface UserDatabase extends JpaRepository<UserDbModel, Long> {
     @Query("update UserDbModel u set u.firstName=:firstName, u.lastName=:lastName, u.email=:email, u.password=:password, u.phoneNumber=:phoneNumber, u.role=:role where u.id=:id")
     void update(@Param("id") long id, @Param("firstName") String firstName, @Param("lastName") String lastName, @Param("email") String email, @Param("password") String password, @Param("phoneNumber") String phoneNumber,@Param("role") String role);
 
-    @Query("select u from UserDbModel u where u.email=:email and u.password=:password")
-    UserDbModel findByEmailAndPassword(@Param("email") String email, @Param("password") String password);
-
     @Query("select u from UserDbModel u where u.phoneNumber=:phoneNumber")
     UserDbModel findByPhoneNumber(@Param("phoneNumber") String phoneNumber);
 

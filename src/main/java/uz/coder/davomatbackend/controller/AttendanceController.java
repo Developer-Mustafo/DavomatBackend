@@ -88,8 +88,6 @@ public class AttendanceController {
 
             User user = userService.findByEmail(userDetails.getUsername());
             long userId = user.getId();
-
-            // Validatsiya
             if (year < 2000 || year > 2100) {
                 return ResponseEntity.badRequest()
                         .body("Invalid year. Must be between 2000-2100".getBytes());

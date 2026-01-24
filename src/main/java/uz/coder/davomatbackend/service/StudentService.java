@@ -52,7 +52,6 @@ public class StudentService {
     public Student edit(Student student) {
         database.update(student.getId(), student.getPhoneNumber(), student.getUserId(), student.getGroupId());
         StudentDbModel model = database.findById(student.getId()).orElseThrow(()->new IllegalArgumentException(THERE_IS_NO_SUCH_A_PERSON));
-        assert model != null;
         String firstNameById = userDatabase.findFirstNameById(student.getUserId());
         String lastNameById = userDatabase.findLastNameById(student.getUserId());
         String fullName = firstNameById + " " + lastNameById;
@@ -61,7 +60,6 @@ public class StudentService {
 
     public Student findById(long id) {
         StudentDbModel student = database.findById(id).orElseThrow(()->new IllegalArgumentException(THERE_IS_NO_SUCH_A_PERSON));
-        assert student != null;
         String firstNameById = userDatabase.findFirstNameById(student.getUserId());
         String lastNameById = userDatabase.findLastNameById(student.getUserId());
         String fullName = firstNameById + " " + lastNameById;
@@ -153,9 +151,9 @@ public class StudentService {
                 row.createCell(2).setCellValue(s.getPhoneNumber());
 
                 GroupDbModel group = groupDatabase.findById(s.getGroupId()).orElseThrow(()->new IllegalArgumentException(THERE_IS_NO_SUCH_A_PERSON));
-                String groupName = group != null ? group.getTitle() : "Noma'lum";
+                String groupName = group.getTitle();
 
-                CourseDbModel course = (group != null) ? courseDatabase.findById(group.getCourseId()).orElse(null) : null;
+                CourseDbModel course = courseDatabase.findById(group.getCourseId()).orElse(null);
                 String courseName = (course != null) ? course.getTitle() : "Noma'lum";
 
                 row.createCell(3).setCellValue(groupName);
