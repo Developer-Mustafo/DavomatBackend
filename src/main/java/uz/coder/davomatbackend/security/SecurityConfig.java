@@ -43,6 +43,7 @@ public class SecurityConfig {
 
                         // 🔓 Telegram API public (tokensiz ishlaydi)
                         .requestMatchers("/api/telegram/**").permitAll()
+                        .requestMatchers("/api/contact/**").permitAll()
 
                         // 🔓 SWAGGER
                         .requestMatchers(
