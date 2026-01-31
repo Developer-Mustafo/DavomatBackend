@@ -1,5 +1,6 @@
 package uz.coder.davomatbackend.controller;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import uz.coder.davomatbackend.model.Balance;
 import uz.coder.davomatbackend.model.Response;
 import uz.coder.davomatbackend.model.TelegramUser;
 import uz.coder.davomatbackend.model.User;
+import uz.coder.davomatbackend.service.StudentService;
 import uz.coder.davomatbackend.service.TelegramUserService;
 import uz.coder.davomatbackend.service.UserService;
 
@@ -21,11 +23,13 @@ public class TelegramUserController {
 
     private final TelegramUserService service;
     private final UserService userService;
+    private final StudentService studentService;
 
     @Autowired
-    public TelegramUserController(TelegramUserService service, UserService userService) {
+    public TelegramUserController(TelegramUserService service, UserService userService, StudentService studentService) {
         this.service = service;
         this.userService = userService;
+        this.studentService = studentService;
     }
 
     @PostMapping("/register")
@@ -41,6 +45,26 @@ public class TelegramUserController {
                     .body(new Response<>(500, e.getMessage()));
         }
     }
+
+    @GetMapping("/user/phone/{phoneNumber}")
+    public ResponseEntity<Response<User>> getUserPhone(@PathVariable String phoneNumber) {
+        return getResponseResponseEntity(phoneNumber, userService);
+    }
+
+    @NonNull
+    static ResponseEntity<Response<User>> getResponseResponseEntity(@PathVariable String phoneNumber, UserService userService) {
+        try {
+            User result = userService.findByPhoneNumber(phoneNumber);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new Response<>(200, result));
+        }catch (Exception e){
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new Response<>(500, e.getMessage()));
+        }
+    }
+
 
     @GetMapping("/get_all_users")
     public ResponseEntity<Response<List<TelegramUser>>> getAllUsers() {
@@ -64,6 +88,19 @@ public class TelegramUserController {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(200, success));
+        } catch (Exception e) {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new Response<>(500, e.getMessage()));
+        }
+    }
+    @GetMapping("/balance")
+    public ResponseEntity<Response<Balance>> getUserBalance(@RequestParam long telegramUserId) {
+        try {
+            Balance balance = studentService.getUserBalanceByTelegramUserId(telegramUserId);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new Response<>(200, balance));
         } catch (Exception e) {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
