@@ -25,6 +25,7 @@ public class User implements UserDetails {
     private String password;
     private String phoneNumber;
     private String role;
+    private Instant lastPasswordResetAt = Instant.now();
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate payedDate;
