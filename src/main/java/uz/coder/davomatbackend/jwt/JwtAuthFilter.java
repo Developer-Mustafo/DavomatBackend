@@ -8,19 +8,19 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import uz.coder.davomatbackend.service.UserService;
+import uz.coder.davomatbackend.model.User;
 
 import java.io.IOException;
 
-@Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final UserService userService;
+    private final UserDetailsService userService;
 
-    public JwtAuthFilter(JwtService jwtService, UserService userService) {
+    public JwtAuthFilter(JwtService jwtService, UserDetailsService userService) {
         this.jwtService = jwtService;
         this.userService = userService;
     }
@@ -57,8 +57,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
             UserDetails userDetails = userService.loadUserByUsername(username);
 
-            if (jwtService.isTokenValid(token, userDetails)) {
+            User user = (User) userDetails;
 
+            if (jwtService.isTokenValid(token, userDetails, user.getLastPasswordResetAt())) {
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
                                 userDetails,

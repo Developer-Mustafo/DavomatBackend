@@ -10,8 +10,6 @@ import uz.coder.davomatbackend.model.Response;
 import uz.coder.davomatbackend.model.User;
 import uz.coder.davomatbackend.service.UserService;
 
-import static uz.coder.davomatbackend.controller.TelegramUserController.getResponseResponseEntity;
-
 @RequestMapping("/api/user")
 @RestController
 public class UserController {
@@ -76,6 +74,15 @@ public class UserController {
     }
     @GetMapping("/find-by-phone-number/{phoneNumber}")
     public ResponseEntity<Response<User>> findByPhoneNumber(@PathVariable String phoneNumber){
-        return getResponseResponseEntity(phoneNumber, service);
+        try {
+            User result = service.findByPhoneNumber(phoneNumber);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new Response<>(200, result));
+        }catch (Exception e){
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new Response<>(500, e.getMessage()));
+        }
     }
 }

@@ -1,12 +1,12 @@
 package uz.coder.davomatbackend.controller;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import uz.coder.davomatbackend.jwt.JwtService;
 import uz.coder.davomatbackend.model.LoginRequest;
@@ -27,18 +27,15 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final UserService service;
-    private final PasswordEncoder passwordEncoder;
 
     public AuthController(
             AuthenticationManager authenticationManager,
-            JwtService jwtService,
-            UserService service,
-            PasswordEncoder passwordEncoder
+            @Lazy JwtService jwtService,
+            UserService service
     ) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.service = service;
-        this.passwordEncoder = passwordEncoder;
     }
 
     // 🔐 LOGIN
@@ -79,10 +76,9 @@ public class AuthController {
                     userByNumberOfPhone.setEmail(user.getEmail());
                     userByNumberOfPhone.setRole(ROLE_STUDENT);
 
-                    if (user.getPassword() != null) {
-                        userByNumberOfPhone.setPassword(
-                                passwordEncoder.encode(user.getPassword())
-                        );
+                    if (user.getPassword() != null && !user.getPassword().isBlank()) {
+                        userByNumberOfPhone.setPassword(user.getPassword());
+                        // 🔐 encode Service’da qilinadi
                     }
 
                     userByNumberOfPhone.setPayedDate(
@@ -102,7 +98,7 @@ public class AuthController {
                 }
 
             } else {
-                user.setPassword(passwordEncoder.encode(user.getPassword()));
+                // 🔐 raw parol yuboramiz, encode Service’da bo‘ladi
                 User save = service.save(user);
 
                 return ResponseEntity.ok(

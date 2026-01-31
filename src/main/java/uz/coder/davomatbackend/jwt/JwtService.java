@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.time.Instant;
 import java.util.Date;
 
 @Component
@@ -35,10 +36,17 @@ public class JwtService {
     }
 
     // ✅ TOKEN TEKSHIRISH
-    public boolean isTokenValid(String token, UserDetails userDetails) {
+    public boolean isTokenValid(String token, UserDetails userDetails, Instant lastPasswordResetAt) {
         String username = extractUsername(token);
+
+        Date issuedAt = extractAllClaims(token).getIssuedAt();
+
+        boolean tokenIssuedBeforePasswordChange =
+                issuedAt.toInstant().isBefore(lastPasswordResetAt);
+
         return username.equals(userDetails.getUsername())
-                && !isTokenExpired(token);
+                && !isTokenExpired(token)
+                && !tokenIssuedBeforePasswordChange;
     }
 
     // ⏰ MUDDAT TEKSHIRISH

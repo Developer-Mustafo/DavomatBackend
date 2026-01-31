@@ -8,14 +8,16 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import uz.coder.davomatbackend.db.model.UserDbModel;
 import uz.coder.davomatbackend.model.Balance;
+
+import java.time.Instant;
 import java.time.LocalDate;
 
 @Repository
 public interface UserDatabase extends JpaRepository<UserDbModel, Long> {
     @Modifying
     @Transactional
-    @Query("update UserDbModel u set u.firstName=:firstName, u.lastName=:lastName, u.email=:email, u.password=:password, u.phoneNumber=:phoneNumber, u.role=:role where u.id=:id")
-    void update(@Param("id") long id, @Param("firstName") String firstName, @Param("lastName") String lastName, @Param("email") String email, @Param("password") String password, @Param("phoneNumber") String phoneNumber,@Param("role") String role);
+    @Query("update UserDbModel u set u.firstName=:firstName, u.lastName=:lastName, u.email=:email, u.password=:password, u.phoneNumber=:phoneNumber, u.role=:role, u.lastPasswordResetAt=:lastPasswordResetAt where u.id=:id")
+    void update(@Param("id") long id, @Param("firstName") String firstName, @Param("lastName") String lastName, @Param("email") String email, @Param("password") String password, @Param("phoneNumber") String phoneNumber, @Param("role") String role, @Param("lastPasswordResetAt") Instant lastPasswordResetAt);
 
     @Query("select u from UserDbModel u where u.phoneNumber=:phoneNumber")
     UserDbModel findByPhoneNumber(@Param("phoneNumber") String phoneNumber);
