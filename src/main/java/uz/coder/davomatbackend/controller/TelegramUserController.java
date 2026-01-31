@@ -4,6 +4,7 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import uz.coder.davomatbackend.model.Balance;
 import uz.coder.davomatbackend.model.Response;
@@ -22,12 +23,14 @@ public class TelegramUserController {
     private final TelegramUserService service;
     private final UserService userService;
     private final StudentService studentService;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public TelegramUserController(TelegramUserService service, UserService userService, StudentService studentService) {
+    public TelegramUserController(TelegramUserService service, UserService userService, StudentService studentService, PasswordEncoder passwordEncoder) {
         this.service = service;
         this.userService = userService;
         this.studentService = studentService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @PostMapping("/register")
@@ -42,11 +45,6 @@ public class TelegramUserController {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(500, e.getMessage()));
         }
-    }
-
-    @GetMapping("/user/phone/{phoneNumber}")
-    public ResponseEntity<Response<User>> getUserPhone(@PathVariable String phoneNumber) {
-        return getResponseResponseEntity(phoneNumber, userService);
     }
 
     @NonNull
@@ -100,6 +98,20 @@ public class TelegramUserController {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(200, balance));
         } catch (Exception e) {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new Response<>(500, e.getMessage()));
+        }
+    }
+    @PutMapping("/update/user")
+    public ResponseEntity<Response<User>> updateUserViaPhoneNumber(@RequestParam String phoneNumber, @RequestBody String password) {
+        try {
+            User user = userService.findByPhoneNumber(phoneNumber);
+            user.setPassword(passwordEncoder.encode(password));
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new Response<>(200, userService.edit(user)));
+        }catch (Exception e){
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(500, e.getMessage()));
