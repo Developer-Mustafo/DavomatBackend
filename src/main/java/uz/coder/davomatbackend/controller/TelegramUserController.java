@@ -86,7 +86,7 @@ public class TelegramUserController {
         }
     }
     @PutMapping("/update/user")
-    public ResponseEntity<Response<User>> updateUserViaPhoneNumber(@RequestParam String phoneNumber, @RequestBody String password) {
+    public ResponseEntity<Response<User>> updateUserViaPhoneNumber(@RequestParam String phoneNumber, @RequestParam String password) {
         try {
             User user = userService.findByPhoneNumber(phoneNumber);
             user.setPassword(password);
