@@ -60,9 +60,15 @@
         </div>
 
         <form id="contact-form" class="contact-form" autocomplete="off">
-          <input type="text" name="name" placeholder="Ismingiz" required>
-          <input type="email" name="email" placeholder="Email" required>
-          <textarea name="message" placeholder="Xabaringiz" rows="5" required></textarea>
+          <label>
+            <input type="text" name="name" placeholder="Ismingiz" required>
+          </label>
+          <label>
+            <input type="email" name="email" placeholder="Email" required>
+          </label>
+          <label>
+            <textarea name="message" placeholder="Xabaringiz" rows="5" required></textarea>
+          </label>
           <div class="form-row">
             <button type="submit" class="btn-primary">Yuborish</button>
             <span id="form-message" class="form-message" role="status" aria-live="polite"></span>
