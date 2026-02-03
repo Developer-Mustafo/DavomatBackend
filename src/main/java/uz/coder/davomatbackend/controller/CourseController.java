@@ -5,9 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import uz.coder.davomatbackend.model.Course;
-import uz.coder.davomatbackend.model.Response;
-import uz.coder.davomatbackend.model.User;
+import uz.coder.davomatbackend.model.*;
 import uz.coder.davomatbackend.service.CourseService;
 import uz.coder.davomatbackend.service.UserService;
 
@@ -72,10 +70,13 @@ public class CourseController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Response<Course>> create(@RequestBody Course course) {
+    public ResponseEntity<Response<Course>> create(@RequestBody AddCourse addCourse) {
         try {
+            Course course = new Course();
             User user = getCurrentUser();
-            course.setUserId(user.getId()); // userId token orqali olinadi
+            course.setTitle(addCourse.getTitle());
+            course.setDescription(addCourse.getDescription());
+            course.setUserId(user.getId());
             if (user.getRole().equals(ROLE_ADMIN) || user.getRole().equals(ROLE_TEACHER)) {
                 Course save = service.save(course);
                 return ResponseEntity.ok()
@@ -94,10 +95,14 @@ public class CourseController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<Response<Course>> update(@RequestBody Course course) {
+    public ResponseEntity<Response<Course>> update(@RequestBody UpdateCourse updateCourse) {
         try {
+            Course course = new Course();
+            course.setTitle(updateCourse.getTitle());
+            course.setDescription(updateCourse.getDescription());
+            course.setId(updateCourse.getId());
             User user = getCurrentUser();
-            course.setUserId(user.getId()); // userId token orqali olinadi
+            course.setUserId(user.getId());
             if (user.getRole().equals(ROLE_ADMIN) || user.getRole().equals(ROLE_TEACHER)) {
                 Course edit = service.edit(course);
                 return ResponseEntity.ok()

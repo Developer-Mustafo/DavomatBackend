@@ -23,12 +23,4 @@ public class Student {
         this.userId = userId;
         this.groupId = groupId;
     }
-
-    public Student(long id, String fullName, String phoneNumber, long userId, long groupId) {
-        this.id = id;
-        this.fullName = fullName;
-        this.phoneNumber = phoneNumber;
-        this.userId = userId;
-        this.groupId = groupId;
-    }
 }

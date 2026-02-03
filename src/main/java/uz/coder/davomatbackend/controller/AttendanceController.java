@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import uz.coder.davomatbackend.model.AddAttendance;
 import uz.coder.davomatbackend.model.Attendance;
 import uz.coder.davomatbackend.model.Response;
 import uz.coder.davomatbackend.model.User;
@@ -27,7 +28,11 @@ public class AttendanceController {
     private final UserService userService;
 
     @PostMapping("/add")
-    public ResponseEntity<Response<Attendance>> save(@RequestBody Attendance attendance) {
+    public ResponseEntity<Response<Attendance>> save(@RequestBody AddAttendance addAttendance) {
+        Attendance attendance = new Attendance();
+        attendance.setDate(addAttendance.getDate());
+        attendance.setStudentId(addAttendance.getStudentId());
+        attendance.setStatus(addAttendance.getStatus());
         Attendance saved = attendanceService.save(attendance);
         if (saved == null)
             return ResponseEntity.badRequest().body(new Response<>(500, "Already exists or invalid"));

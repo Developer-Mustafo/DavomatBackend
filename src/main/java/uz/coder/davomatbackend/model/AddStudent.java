@@ -7,8 +7,8 @@ import lombok.*;
 @Getter
 @Setter
 @ToString
-public class Group {
-    private long id;
-    private String title;
-    private long courseId;
+public class AddStudent {
+    private String fullName;
+    private String phoneNumber;
+    private long groupId;
 }

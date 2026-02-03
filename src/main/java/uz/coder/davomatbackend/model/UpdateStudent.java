@@ -7,9 +7,9 @@ import lombok.*;
 @Getter
 @Setter
 @ToString
-public class Course {
+public class UpdateStudent {
     private long id;
-    private String title;
-    private String description;
-    private long userId;
+    private String fullName;
+    private String phoneNumber;
+    private long groupId;
 }

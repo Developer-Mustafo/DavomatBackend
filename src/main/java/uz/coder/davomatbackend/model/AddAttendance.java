@@ -4,14 +4,13 @@ import lombok.*;
 
 import java.time.LocalDate;
 
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 @ToString
-public class Attendance {
-    private Long id;
-    private Long studentId;
+public class AddAttendance {
+    private long studentId;
     private LocalDate date;
     private String status;
 }

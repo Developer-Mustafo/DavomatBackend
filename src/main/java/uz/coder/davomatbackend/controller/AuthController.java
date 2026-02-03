@@ -9,10 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import uz.coder.davomatbackend.jwt.JwtService;
-import uz.coder.davomatbackend.model.LoginRequest;
-import uz.coder.davomatbackend.model.LoginResponse;
-import uz.coder.davomatbackend.model.Response;
-import uz.coder.davomatbackend.model.User;
+import uz.coder.davomatbackend.model.*;
 import uz.coder.davomatbackend.service.UserService;
 
 import java.time.LocalDate;
@@ -62,9 +59,15 @@ public class AuthController {
 
     // 📝 REGISTER
     @PostMapping("/register")
-    public ResponseEntity<Response<User>> register(@RequestBody User user) {
-
+    public ResponseEntity<Response<UserResponse>> register(@RequestBody AddUser addUser) {
         try {
+            User user = new User();
+            user.setFirstName(addUser.getFirstName());
+            user.setLastName(addUser.getLastName());
+            user.setEmail(addUser.getEmail());
+            user.setPassword(addUser.getPassword());
+            user.setRole(addUser.getRole());
+            user.setPhoneNumber(addUser.getPhoneNumber());
             User userByNumberOfPhone = service.findByPhoneNumber(user.getPhoneNumber());
 
             if (userByNumberOfPhone != null) {
@@ -78,7 +81,6 @@ public class AuthController {
 
                     if (user.getPassword() != null && !user.getPassword().isBlank()) {
                         userByNumberOfPhone.setPassword(user.getPassword());
-                        // 🔐 encode Service’da qilinadi
                     }
 
                     userByNumberOfPhone.setPayedDate(
@@ -88,7 +90,7 @@ public class AuthController {
                     User edit = service.edit(userByNumberOfPhone);
 
                     return ResponseEntity.ok(
-                            new Response<>(200, edit)
+                            new Response<>(200, new UserResponse(edit.getId(), edit.getFirstName(), edit.getLastName(), edit.getEmail(), edit.getPassword(), edit.getPhoneNumber(), edit.getRole(), edit.getPayedDate()))
                     );
 
                 } else {
@@ -98,11 +100,10 @@ public class AuthController {
                 }
 
             } else {
-                // 🔐 raw parol yuboramiz, encode Service’da bo‘ladi
                 User save = service.save(user);
 
                 return ResponseEntity.ok(
-                        new Response<>(200, save)
+                        new Response<>(200, new UserResponse(save.getId(), save.getFirstName(), save.getLastName(), save.getEmail(), save.getPassword(),  save.getPhoneNumber(), save.getRole(), save.getPayedDate()))
                 );
             }
 

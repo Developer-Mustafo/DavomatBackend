@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import uz.coder.davomatbackend.model.AddGroup;
 import uz.coder.davomatbackend.model.Group;
 import uz.coder.davomatbackend.model.Response;
 import uz.coder.davomatbackend.service.GroupService;
@@ -21,8 +22,11 @@ public class GroupController {
     }
 
     @PostMapping("/addGroup")
-    public ResponseEntity<Response<Group>> addGroup(@RequestBody Group group) {
+    public ResponseEntity<Response<Group>> addGroup(@RequestBody AddGroup addGroup) {
         try {
+            Group group = new Group();
+            group.setTitle(addGroup.getTitle());
+            group.setCourseId(addGroup.getCourseId());
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(200, service.save(group)));
@@ -45,7 +49,7 @@ public class GroupController {
         }
     }
     @DeleteMapping("/deleteGroup/{id}")
-    public ResponseEntity<Response<Integer>> deleteGroup(@PathVariable("id") long id) {
+    public ResponseEntity<Response<Integer>> deleteGroup(@PathVariable long id) {
         try {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
@@ -57,7 +61,7 @@ public class GroupController {
         }
     }
     @GetMapping("/{id}")
-    public ResponseEntity<Response<Group>> findById(@PathVariable("id") long id) {
+    public ResponseEntity<Response<Group>> findById(@PathVariable long id) {
         try {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
@@ -69,7 +73,7 @@ public class GroupController {
         }
     }
     @GetMapping("/findByCourseId/{courseId}")
-    public ResponseEntity<Response<List<Group>>> findByCourseId(@PathVariable("courseId") long courseId) {
+    public ResponseEntity<Response<List<Group>>> findByCourseId(@PathVariable long courseId) {
         try {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)

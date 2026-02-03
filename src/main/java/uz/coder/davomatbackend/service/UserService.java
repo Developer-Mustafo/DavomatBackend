@@ -79,10 +79,8 @@ public class UserService implements UserDetailsService {
         String passwordToSave;
 
         if (user.getPassword() == null || user.getPassword().isBlank()) {
-            // parol o‘zgarmagan
             passwordToSave = old.getPassword();
         } else {
-            // yangi parol keldi
             passwordToSave = passwordEncoder.encode(user.getPassword());
         }
 
@@ -91,7 +89,7 @@ public class UserService implements UserDetailsService {
                 user.getFirstName(),
                 user.getLastName(),
                 user.getEmail(),
-                passwordToSave, // 🔐 to‘g‘rilandi
+                passwordToSave,
                 user.getPhoneNumber(),
                 user.getRole(),
                 Instant.now()

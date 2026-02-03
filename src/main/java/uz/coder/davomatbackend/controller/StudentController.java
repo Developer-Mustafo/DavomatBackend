@@ -38,8 +38,12 @@ public class StudentController {
     }
 
     @PostMapping("/addStudent")
-    public ResponseEntity<Response<Student>> addStudent(@RequestBody Student student) {
+    public ResponseEntity<Response<Student>> addStudent(@RequestBody AddStudent addStudent) {
         try {
+            Student student = new Student();
+            student.setFullName(addStudent.getFullName());
+            student.setPhoneNumber(addStudent.getPhoneNumber());
+            student.setGroupId(addStudent.getGroupId());
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(200, service.save(student)));
@@ -51,8 +55,13 @@ public class StudentController {
     }
 
     @PutMapping("/editStudent")
-    public ResponseEntity<Response<Student>> editStudent(@RequestBody Student student) {
+    public ResponseEntity<Response<Student>> editStudent(@RequestBody UpdateStudent updateStudent) {
         try {
+            Student student = new Student();
+            student.setFullName(updateStudent.getFullName());
+            student.setPhoneNumber(updateStudent.getPhoneNumber());
+            student.setGroupId(updateStudent.getGroupId());
+            student.setId(updateStudent.getId());
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new Response<>(200, service.edit(student)));

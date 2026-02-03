@@ -69,15 +69,4 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
-    public User(long id, String firstName, String lastName, String email, String password, String phoneNumber, String role, LocalDate payedDate) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = password;
-        this.phoneNumber = phoneNumber;
-        this.role = role;
-        this.payedDate = payedDate;
-    }
 }
